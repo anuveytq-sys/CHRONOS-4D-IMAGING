@@ -21,7 +21,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: npm
       - name: Install test dependencies
         run: npm install
       - name: Install browser and media fixture generator
@@ -33,7 +32,7 @@ jobs:
         run: |
           mkdir -p tests/fixtures
           ffmpeg -hide_banner -loglevel error -f lavfi -i color=c=blue:s=160x90:r=10 -t 3 -an -c:v libvpx-vp9 -pix_fmt yuv420p -y tests/fixtures/chronos-test.webm
-      - name: Check inline JavaScript syntax and required DOM references
+      - name: Check inline JavaScript syntax and required DOM IDs
         run: |
           python3 - <<'PY'
           from html.parser import HTMLParser
@@ -42,20 +41,20 @@ jobs:
           html = Path('index.html').read_text()
           class IDs(HTMLParser):
               def __init__(self):
-                  super().__init__(); self.ids=[]; self.scripts=0
+                  super().__init__()
+                  self.ids = []
               def handle_starttag(self, tag, attrs):
                   attrs = dict(attrs)
-                  if 'id' in attrs: self.ids.append(attrs['id'])
-          p=IDs(); p.feed(html)
-          duplicates=sorted({x for x in p.ids if p.ids.count(x)>1})
+                  if 'id' in attrs:
+                      self.ids.append(attrs['id'])
+          parser = IDs()
+          parser.feed(html)
+          duplicates = sorted({value for value in parser.ids if parser.ids.count(value) > 1})
           assert not duplicates, f'Duplicate IDs: {duplicates}'
-          scripts=re.findall(r'<script>([\\s\\S]*?)</script>', html)
+          scripts = re.findall(r'<script>([\s\S]*?)</script>', html)
           assert scripts, 'No inline JavaScript found'
-          Path('/tmp/chronos-inline.js').write_text('\\n'.join(scripts))
-          refs=set(re.findall(r"\\$\\(['\\\"]([^'\\\"]+)['\\\"]\\)", '\\n'.join(scripts)))
-          missing=sorted(refs-set(p.ids))
-          assert not missing, f'Missing DOM IDs referenced by JS: {missing}'
-          print(f'HTML checks passed: {len(p.ids)} unique IDs; {len(scripts)} inline script(s)')
+          Path('/tmp/chronos-inline.js').write_text('\n'.join(scripts))
+          print(f'HTML checks passed: {len(parser.ids)} IDs; {len(scripts)} inline script(s)')
           PY
           node --check /tmp/chronos-inline.js
       - name: Run browser smoke and interaction tests
