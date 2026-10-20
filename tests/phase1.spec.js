@@ -45,10 +45,7 @@ test('local video upload enables playback and timeline navigation', async ({ pag
   await expect(page.locator('#resolutionStat')).toContainText('160×90');
   await page.locator('#playBtn').click();
   await expect.poll(() => page.locator('#video').evaluate(v => !v.paused)).toBeTruthy();
-  await page.locator('#pauseBtn').click().catch(async () => {
-    // This interface uses the same play button to toggle pause.
-    await page.locator('#playBtn').click();
-  });
+  await page.locator('#playBtn').click();
   await expect.poll(() => page.locator('#video').evaluate(v => v.paused)).toBeTruthy();
   await page.locator('#timeline').evaluate(el => {
     el.value = String(Math.floor(Number(el.max) * 0.5));
