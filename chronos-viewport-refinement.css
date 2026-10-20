@@ -66,3 +66,29 @@
   .center-column{padding-left:0;padding-right:0}
   .timeline-panel{max-height:min(44vh,300px)}
 }
+
+
+/* CHRONOS compact-panel final override — keeps the temporal coordinate card aligned with the side panels. */
+.timeline-panel{flex:0 0 148px;width:148px;max-width:148px;min-width:0;height:136px;max-height:136px;min-height:0;overflow:hidden;display:flex;flex-direction:column;align-self:center}
+.timeline-panel>.panel-head{flex:0 0 auto;min-height:0;padding:6px 7px}
+.timeline-panel>.panel-body{flex:1 1 auto;min-height:0;height:auto;max-height:none;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;touch-action:pan-y;padding:6px 7px}
+.timeline-panel .panel-row{margin:2px 0 4px}
+.timeline-panel .timeline{height:23px;margin:4px 0}
+.timeline-panel .timeline-labels{font-size:7px}
+.left-stack .panel,.right-stack .panel{min-height:0;min-width:0}
+.left-stack .panel-body,.right-stack .panel-body{min-height:0;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain}
+@media(max-width:760px){
+ .timeline-panel{flex:0 0 78px;width:78px;max-width:78px;height:104px;max-height:104px;min-height:0;overflow:hidden;align-self:center}
+ .timeline-panel>.panel-head{padding:4px 3px}
+ .timeline-panel>.panel-body{padding:3px;overflow-y:auto;overflow-x:hidden}
+ .timeline-panel .timeline{height:18px;margin:3px 0}
+ .timeline-panel .timeline-labels{font-size:4.5px}
+ .left-stack .panel,.right-stack .panel{flex:0 0 auto}
+ .left-stack .panel-body,.right-stack .panel-body{overflow-y:auto;overflow-x:hidden}
+}
+@media(max-width:430px){
+ .timeline-panel{flex-basis:62px;width:62px;max-width:62px;height:100px;max-height:100px}
+ .timeline-panel>.panel-head{padding:3px 2px}
+ .timeline-panel>.panel-body{padding:2px}
+}
+
