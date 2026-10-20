@@ -1,0 +1,61 @@
+name: CHRONOS Phase 1 validation
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [phase-1-chronos-interface, main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  phase1-browser-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install test dependencies
+        run: npm install
+      - name: Install browser and media fixture generator
+        run: |
+          npx playwright install --with-deps chromium
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
+      - name: Generate short synthetic video fixture
+        run: |
+          mkdir -p tests/fixtures
+          ffmpeg -hide_banner -loglevel error -f lavfi -i color=c=blue:s=160x90:r=10 -t 3 -an -c:v libvpx-vp9 -pix_fmt yuv420p -y tests/fixtures/chronos-test.webm
+      - name: Check inline JavaScript syntax and required DOM IDs
+        run: |
+          python3 - <<'PY'
+          from html.parser import HTMLParser
+          from pathlib import Path
+          import re
+          html = Path('index.html').read_text()
+          class IDs(HTMLParser):
+              def __init__(self):
+                  super().__init__()
+                  self.ids = []
+              def handle_starttag(self, tag, attrs):
+                  attrs = dict(attrs)
+                  if 'id' in attrs:
+                      self.ids.append(attrs['id'])
+          parser = IDs()
+          parser.feed(html)
+          duplicates = sorted({value for value in parser.ids if parser.ids.count(value) > 1})
+          assert not duplicates, f'Duplicate IDs: {duplicates}'
+          scripts = re.findall(r'<script>([\s\S]*?)</script>', html)
+          assert scripts, 'No inline JavaScript found'
+          Path('/tmp/chronos-inline.js').write_text('\n'.join(scripts))
+          print(f'HTML checks passed: {len(parser.ids)} IDs; {len(scripts)} inline script(s)')
+          PY
+          node --check /tmp/chronos-inline.js
+      - name: Run browser smoke and interaction tests
+        run: npm run test:phase1
