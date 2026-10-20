@@ -43,7 +43,7 @@ jobs:
           html = page.read_text(encoding='utf-8')
           marker = '<!-- CHRONOS_IMMERSIVE_CSS -->'
           if marker not in html:
-              injection = marker + '<style id="chronos-immersive-css">\\n' + css + '\\n</style>'
+              injection = marker + '<style id="chronos-immersive-css">\n' + css + '\n</style>'
               html = html.replace('</head>', injection + '</head>', 1)
               page.write_text(html, encoding='utf-8')
           print('Immersive responsive CSS injected for deployment; application logic remains unchanged.')
