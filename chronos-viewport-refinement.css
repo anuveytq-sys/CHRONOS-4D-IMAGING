@@ -92,3 +92,20 @@
  .timeline-panel>.panel-body{padding:2px}
 }
 
+/* CHRONOS temporal-coordinate panel placement refinement — CSS-only; preserves all controls and behavior. */
+.timeline-panel{
+  position:absolute!important;
+  right:0!important;bottom:0!important;left:auto!important;top:auto!important;
+  width:132px!important;max-width:132px!important;min-width:0!important;
+  height:118px!important;max-height:118px!important;min-height:0!important;
+  margin:0!important;align-self:auto!important;overflow:hidden!important;
+  display:flex;flex-direction:column;z-index:10;
+}
+.timeline-panel>.panel-head{flex:0 0 auto;min-height:0}
+.timeline-panel>.panel-body{flex:1 1 auto;min-height:0;height:auto;max-height:none;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;touch-action:pan-y}
+@media(max-width:760px){
+  .timeline-panel{right:0!important;bottom:0!important;width:70px!important;max-width:70px!important;height:94px!important;max-height:94px!important}
+}
+@media(max-width:430px){
+  .timeline-panel{right:0!important;bottom:0!important;width:58px!important;max-width:58px!important;height:88px!important;max-height:88px!important}
+}
