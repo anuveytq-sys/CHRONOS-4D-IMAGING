@@ -1,0 +1,68 @@
+/* CHRONOS viewport refinement v2: compact scrollable side stacks + larger reality viewport. Presentation only. */
+.center-column{display:flex;align-items:center;justify-content:center;gap:8px}
+.screen-shell{flex:1 1 auto;width:auto;min-width:0;max-width:none}
+.timeline-panel{flex:0 0 clamp(150px,18vw,220px);width:auto;max-width:220px;min-width:0;margin-top:0;overflow:auto;max-height:min(42vh,280px);scrollbar-width:thin}
+.timeline-panel .panel-body{overflow:auto}
+@media(max-width:1100px){
+  .center-column{gap:6px}
+  .timeline-panel{flex-basis:clamp(135px,20vw,185px);max-width:185px;max-height:min(38vh,240px)}
+}
+@media(max-width:760px){
+  .center-column{align-items:center;justify-content:center;gap:5px;padding:0 58px 38px}
+  .screen-shell{flex:1 1 auto;width:auto;min-width:0;max-width:none;padding:3px}
+  .screen{width:100%;aspect-ratio:1/1;max-height:none}
+  .timeline-panel{flex:0 0 clamp(102px,28vw,125px);width:auto;max-width:125px;max-height:min(30vh,190px);margin:0;overflow:auto;scrollbar-width:thin}
+  .timeline-panel .panel-head{padding:5px 6px}
+  .timeline-panel .panel-body{padding:5px 6px;overflow:auto}
+  .timeline-panel .panel-title{font-size:6px}
+  .timeline-panel .panel-code{font-size:5px}
+  .timeline-panel .label,.timeline-panel .value{font-size:6px}
+  .timeline-panel .timeline{height:22px;margin:4px 0 3px}
+  .timeline-panel .timeline-labels{font-size:5px}
+  .timeline-panel .panel-row{margin:3px 0}
+  .left-stack,.right-stack{top:3px;bottom:39px;width:58px;display:flex;flex-direction:column;gap:3px;overflow-y:auto;overflow-x:hidden;max-height:58vh;align-items:stretch;scrollbar-width:thin}
+  .left-stack{left:1px}.right-stack{right:1px}
+  .left-stack .panel,.right-stack .panel{width:58px;height:auto;min-height:0;flex:0 0 auto;margin:0}
+  .left-stack .panel-body,.right-stack .panel-body{min-height:0;overflow:visible}
+  .left-stack .panel-head,.right-stack .panel-head{padding:4px 3px}
+  .left-stack .panel-body,.right-stack .panel-body{padding:3px}
+  .left-stack .nav-item{padding:3px 2px;margin:1px 0}
+  .left-stack .nav-label{font-size:5.5px}
+  .left-stack .nav-icon{width:14px;height:14px;font-size:7px}
+  .left-stack .nav-desc{display:block;font-size:4px;line-height:1.15;margin-top:1px}
+  .left-stack .panel-title,.right-stack .panel-title{font-size:5px}
+  .left-stack .panel-code,.right-stack .panel-code{font-size:4.5px}
+  .left-stack .stat,.right-stack .stat{padding:2px}
+  .left-stack .stat strong,.right-stack .stat strong{font-size:7px}
+  .left-stack .stat span,.right-stack .stat span{font-size:4px}
+  .left-stack .layer,.right-stack .layer{margin:2px 0;font-size:5px}
+  .left-stack .panel-row,.right-stack .panel-row{margin:2px 0}
+  .left-stack .label,.left-stack .value,.right-stack .label,.right-stack .value{font-size:4.5px}
+  .left-stack .small,.right-stack .small{font-size:4.5px}
+  .left-stack p,.right-stack p{font-size:4.5px;line-height:1.2}
+  .left-stack .btn,.right-stack .btn{font-size:4.5px;padding:3px 2px}
+  .left-stack .divider,.right-stack .divider{margin:3px 0}
+  .left-stack .meter,.right-stack .meter{height:2px;margin-top:2px}
+  .footer-console{bottom:2px;height:auto;max-height:38px;padding:2px 4px}
+  .console-head{margin-bottom:1px}
+  .console-input input{padding:3px 5px}
+  .console-input .btn{padding:3px 5px}
+}
+@media(max-width:430px){
+  .center-column{padding-left:50px;padding-right:50px;padding-bottom:36px;gap:4px}
+  .timeline-panel{flex-basis:105px;max-width:105px;max-height:28vh}
+  .timeline-panel .panel-head{padding:4px 5px}
+  .timeline-panel .panel-body{padding:4px 5px}
+  .left-stack,.right-stack{width:50px;max-height:57vh}
+  .left-stack .panel,.right-stack .panel{width:50px}
+  .left-stack .nav-label{font-size:5px}
+  .left-stack .nav-icon{width:12px;height:12px;font-size:6px}
+  .left-stack .nav-desc{font-size:3.5px}
+  .left-stack .panel-title,.right-stack .panel-title{font-size:4.5px}
+  .left-stack .panel-code,.right-stack .panel-code{font-size:4px}
+  .footer-console{width:calc(100vw - 108px);max-height:34px}
+}
+@media(min-width:761px){
+  .center-column{padding-left:0;padding-right:0}
+  .timeline-panel{max-height:min(44vh,300px)}
+}
