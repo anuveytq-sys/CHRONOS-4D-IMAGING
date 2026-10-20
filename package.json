@@ -1,0 +1,12 @@
+{
+  "name": "chronos-4d-imaging",
+  "version": "0.1.0",
+  "private": true,
+  "description": "CHRONOS Phase 1 interface validation",
+  "scripts": {
+    "test:phase1": "playwright test"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.56.1"
+  }
+}
