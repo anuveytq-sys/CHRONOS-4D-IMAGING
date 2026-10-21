@@ -207,3 +207,41 @@
 @media(max-width:430px){
   .right-stack>.chronos-temporal-layers-panel{height:104px!important;max-height:104px!important}
 }
+
+
+/* Temporal Layers text/scroll repair only.
+   Keep the outer panel's established position and dimensions. Give its content a
+   readable horizontal layout and let the existing panel body scroll on both axes. */
+.right-stack>.chronos-temporal-layers-panel>.panel-head{
+  min-width:0!important;max-width:100%!important;overflow-x:auto!important;overflow-y:hidden!important;
+  flex-wrap:nowrap!important;white-space:nowrap!important;writing-mode:horizontal-tb!important;
+  touch-action:pan-x pan-y!important;-webkit-overflow-scrolling:touch!important;
+}
+.right-stack>.chronos-temporal-layers-panel>.panel-head *{
+  writing-mode:horizontal-tb!important;text-orientation:mixed!important;white-space:nowrap!important;
+  word-break:normal!important;overflow-wrap:normal!important;flex-shrink:0!important;
+}
+.right-stack>.chronos-temporal-layers-panel>.panel-body{
+  min-width:0!important;max-width:100%!important;overflow-x:auto!important;overflow-y:auto!important;
+  touch-action:pan-x pan-y!important;overscroll-behavior:contain!important;
+  -webkit-overflow-scrolling:touch!important;
+}
+.right-stack>.chronos-temporal-layers-panel>.panel-body>#multi4dPanel{
+  display:block!important;width:260px!important;min-width:260px!important;max-width:none!important;
+  writing-mode:horizontal-tb!important;overflow:visible!important;white-space:normal!important;
+}
+.right-stack>.chronos-temporal-layers-panel>.panel-body>#multi4dPanel,
+.right-stack>.chronos-temporal-layers-panel>.panel-body>#multi4dPanel *{
+  writing-mode:horizontal-tb!important;text-orientation:mixed!important;
+}
+.right-stack>.chronos-temporal-layers-panel>.panel-body>#multi4dPanel .multi4d-heading,
+.right-stack>.chronos-temporal-layers-panel>.panel-body>#multi4dPanel .multi4d-note,
+.right-stack>.chronos-temporal-layers-panel>.panel-body>#multi4dPanel .multi4d-label,
+.right-stack>.chronos-temporal-layers-panel>.panel-body>#multi4dPanel .multi4d-status,
+.right-stack>.chronos-temporal-layers-panel>.panel-body>#multi4dPanel .multi4d-disclaimer,
+.right-stack>.chronos-temporal-layers-panel>.panel-body>#multi4dPanel .multi4d-place{
+  white-space:normal!important;word-break:normal!important;overflow-wrap:anywhere!important;
+}
+.right-stack>.chronos-temporal-layers-panel>.panel-body>#multi4dPanel .multi4d-input{
+  width:100%!important;min-width:0!important;
+}
