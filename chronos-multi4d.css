@@ -1,5 +1,5 @@
 /* Additive styles for optional Multi 4D Timeline inside Temporal Layers. */
-.multi4d-panel{margin-top:16px;padding:12px;border:1px solid #28546a;border-radius:12px;background:linear-gradient(145deg,#0d1e2b,#08111a);min-width:0;overflow:hidden}
+.multi4d-panel{margin-top:12px;padding:9px;border:1px solid #28546a;border-radius:12px;background:linear-gradient(145deg,#0d1e2b,#08111a);min-width:0;overflow:hidden}
 .multi4d-heading{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;color:#7ff6ef;font-size:11px;font-weight:800;letter-spacing:.08em}
 .multi4d-badge{font-size:9px;border:1px solid #4c7890;border-radius:99px;padding:3px 6px;color:#a9d8e6}
 .multi4d-note,.multi4d-disclaimer{font-size:10px;line-height:1.5;color:#9ab0bd;overflow-wrap:anywhere}
@@ -26,3 +26,15 @@
 @keyframes multi4dFade{from{opacity:.2;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
 @keyframes multi4dPulse{0%,100%{filter:brightness(.9)}50%{filter:brightness(1.08)}}
 @media(max-width:480px){.multi4d-stage,.multi4d-sources{grid-template-columns:minmax(0,1fr)}.multi4d-actions .btn{flex:1}}
+
+/* Keep the feature compact and let the existing Temporal Layers body scroll. */
+#multi4dPanel{display:block;width:100%;min-width:0;max-height:none;overflow:visible;contain:layout style}
+#multi4dPanel .multi4d-note{margin:7px 0;font-size:9px}
+#multi4dPanel .multi4d-actions .btn{padding:7px 8px;min-width:0}
+#multi4dPanel .multi4d-result{max-width:100%;overflow-wrap:anywhere}
+.settings-modal{overflow-y:auto;align-items:start;-webkit-overflow-scrolling:touch}
+.settings-modal.open{display:grid}
+.settings-modal .modal{max-height:calc(100dvh - 32px);display:flex;flex-direction:column;min-height:0;margin:auto 0}
+.settings-modal .modal-head{flex:0 0 auto}
+.settings-modal .modal-body{min-height:0;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;touch-action:pan-y}
+@media(max-width:720px){.settings-modal{padding:10px}.settings-modal .modal{max-height:calc(100dvh - 20px);width:100%}.settings-modal .modal-body{padding:14px}}
