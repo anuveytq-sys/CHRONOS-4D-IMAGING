@@ -30,25 +30,32 @@ jobs:
         with:
           enablement: true
 
-      - name: Validate and prepare immersive CHRONOS viewport
+      - name: Validate and prepare CHRONOS viewport
         run: |
           test -s index.html
           test -s chronos-responsive.css
           test -s chronos-viewport-refinement.css
-          echo "CHRONOS entry point and responsive shells found"
+          test -s chronos-phase2.css
+          test -s chronos-phase2.js
+          echo "CHRONOS entry point, responsive shells, and Phase 2 engine found"
           test -f .nojekyll || touch .nojekyll
           python3 - <<'PY'
           from pathlib import Path
           page = Path('index.html')
           css = Path('chronos-responsive.css').read_text(encoding='utf-8')
           refinement = Path('chronos-viewport-refinement.css').read_text(encoding='utf-8')
+          phase2_css = Path('chronos-phase2.css').read_text(encoding='utf-8')
           html = page.read_text(encoding='utf-8')
           marker = '<!-- CHRONOS_IMMERSIVE_CSS -->'
           if marker not in html:
-              injection = marker + '<style id="chronos-immersive-css">\n' + css + '\n' + refinement + '\n</style>'
+              injection = marker + '<style id="chronos-immersive-css">\n' + css + '\n' + refinement + '\n' + phase2_css + '\n</style>'
               html = html.replace('</head>', injection + '</head>', 1)
-              page.write_text(html, encoding='utf-8')
-          print('Immersive responsive CSS and viewport refinement injected for deployment; application logic remains unchanged.')
+          script_marker = '<!-- CHRONOS_PHASE2_ENGINE -->'
+          if script_marker not in html:
+              script = script_marker + '<script src="chronos-phase2.js"></script>'
+              html = html.replace('</body>', script + '</body>', 1)
+          page.write_text(html, encoding='utf-8')
+          print('CHRONOS responsive CSS, viewport refinement, and Phase 2 engine injected for deployment.')
           PY
 
       - name: Upload complete site
