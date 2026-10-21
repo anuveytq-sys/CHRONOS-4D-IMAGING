@@ -42,7 +42,9 @@ jobs:
           test -s chronos-phase3.js
           test -s chronos-phase4.css
           test -s chronos-phase4.js
+          test -s chronos-settings-tools.js
           node --check chronos-phase4.js
+          node --check chronos-settings-tools.js
           echo "CHRONOS entry point and Phase 2–4 engines found"
           test -f .nojekyll || touch .nojekyll
           python3 - <<'PY'
@@ -72,8 +74,12 @@ jobs:
           if phase4_marker not in html and 'src="./chronos-phase4.js' not in html and 'src="chronos-phase4.js' not in html:
               script = phase4_marker + '<script src="chronos-phase4.js"></script>'
               html = html.replace('</body>', script + '</body>', 1)
+          settings_marker = '<!-- CHRONOS_SETTINGS_TOOLS -->'
+          if settings_marker not in html and 'src="./chronos-settings-tools.js"' not in html and 'src="chronos-settings-tools.js"' not in html:
+              script = settings_marker + '<script src="chronos-settings-tools.js"></script>'
+              html = html.replace('</body>', script + '</body>', 1)
           page.write_text(html, encoding='utf-8')
-          print('CHRONOS responsive CSS and Phase 2, Phase 3, and Phase 4 assets prepared for deployment.')
+          print('CHRONOS responsive CSS, Phase 2–4 assets, and Settings tools prepared for deployment.')
           PY
 
       - name: Upload complete site
