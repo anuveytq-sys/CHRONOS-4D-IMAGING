@@ -62,7 +62,6 @@ jobs:
           phase2_css = Path('chronos-phase2.css').read_text(encoding='utf-8')
           phase3_css = Path('chronos-phase3.css').read_text(encoding='utf-8')
           phase4_css = Path('chronos-phase4.css').read_text(encoding='utf-8')
-          multi4d_css = Path('chronos-multi4d.css').read_text(encoding='utf-8')
           html = page.read_text(encoding='utf-8')
           if 'chronos-phase4.css' not in html or 'chronos-phase4.js' not in html:
               raise SystemExit('Phase 4 assets are not linked from index.html')
@@ -72,32 +71,25 @@ jobs:
               html = html.replace('</head>', injection + '</head>', 1)
           script_marker = '<!-- CHRONOS_PHASE2_ENGINE -->'
           if script_marker not in html and 'src="./chronos-phase2.js"' not in html and 'src="chronos-phase2.js"' not in html:
-              script = script_marker + '<script src="chronos-phase2.js"></script>'
-              html = html.replace('</body>', script + '</body>', 1)
+              html = html.replace('</body>', script_marker + '<script src="chronos-phase2.js"></script></body>', 1)
           phase3_marker = '<!-- CHRONOS_PHASE3_ENGINE -->'
           if phase3_marker not in html and 'src="./chronos-phase3.js' not in html and 'src="chronos-phase3.js' not in html:
-              script = phase3_marker + '<script src="chronos-phase3.js"></script>'
-              html = html.replace('</body>', script + '</body>', 1)
+              html = html.replace('</body>', phase3_marker + '<script src="chronos-phase3.js"></script></body>', 1)
           phase4_marker = '<!-- CHRONOS_PHASE4_ENGINE -->'
           if phase4_marker not in html and 'src="./chronos-phase4.js' not in html and 'src="chronos-phase4.js' not in html:
-              script = phase4_marker + '<script src="chronos-phase4.js"></script>'
-              html = html.replace('</body>', script + '</body>', 1)
+              html = html.replace('</body>', phase4_marker + '<script src="chronos-phase4.js"></script></body>', 1)
           multi4d_marker = '<!-- CHRONOS_MULTI4D_ENGINE -->'
           if multi4d_marker not in html and 'chronos-multi4d.js' not in html:
-              script = multi4d_marker + '<script src="chronos-multi4d.js?v=20261021-horizontalcompact2"></script>'
-              html = html.replace('</body>', script + '</body>', 1)
+              html = html.replace('</body>', multi4d_marker + '<script src="chronos-multi4d.js?v=20261021-horizontalcompact2"></script></body>', 1)
           motion_marker = '<!-- CHRONOS_MOTION_CORE -->'
           if motion_marker not in html and 'chronos-motion-core.js' not in html:
-              script = motion_marker + '<script src="chronos-motion-core.js?v=20261021-motiononly1"></script>'
-              html = html.replace('</body>', script + '</body>', 1)
+              html = html.replace('</body>', motion_marker + '<script src="chronos-motion-core.js?v=20261021-motiononly2"></script></body>', 1)
           cleanup_marker = '<!-- CHRONOS_MOTION_BIND_CLEANUP -->'
           if cleanup_marker not in html and 'chronos-motion-bind-cleanup.js' not in html:
-              script = cleanup_marker + '<script src="chronos-motion-bind-cleanup.js"></script>'
-              html = html.replace('</body>', script + '</body>', 1)
+              html = html.replace('</body>', cleanup_marker + '<script src="chronos-motion-bind-cleanup.js"></script></body>', 1)
           settings_marker = '<!-- CHRONOS_SETTINGS_TOOLS -->'
           if settings_marker not in html and 'src="./chronos-settings-tools.js"' not in html and 'src="chronos-settings-tools.js"' not in html:
-              script = settings_marker + '<script src="chronos-settings-tools.js"></script>'
-              html = html.replace('</body>', script + '</body>', 1)
+              html = html.replace('</body>', settings_marker + '<script src="chronos-settings-tools.js"></script></body>', 1)
           page.write_text(html, encoding='utf-8')
           print('CHRONOS responsive CSS, Phase 2–4 assets, Multi 4D Timeline, Motion Core, and Settings tools prepared for deployment.')
           PY
