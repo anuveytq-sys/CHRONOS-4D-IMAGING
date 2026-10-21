@@ -432,3 +432,84 @@
     padding:4px 6px!important;
   }
 }
+
+
+/* Compact Time Navigator pass: smaller typography and roomier inner blue-outline
+   sections. Only affects the Phase 3 navigator; outer panel dimensions are untouched. */
+.left-stack > .chronos-phase3-panel .p3-body{
+  overflow:auto!important;
+  overflow-x:auto!important;
+  overflow-y:auto!important;
+  max-width:100%!important;
+  box-sizing:border-box!important;
+}
+.left-stack > .chronos-phase3-panel .p3-section{
+  width:max-content!important;
+  min-width:100%!important;
+  max-width:none!important;
+  padding:10px!important;
+  box-sizing:border-box!important;
+}
+.left-stack > .chronos-phase3-panel .p3-heading{
+  font-size:7px!important;
+  line-height:1.25!important;
+  letter-spacing:.035em!important;
+}
+.left-stack > .chronos-phase3-panel .p3-note,
+.left-stack > .chronos-phase3-panel .p3-legend span,
+.left-stack > .chronos-phase3-panel .p3-type,
+.left-stack > .chronos-phase3-panel label{
+  font-size:6.5px!important;
+  line-height:1.3!important;
+}
+.left-stack > .chronos-phase3-panel .p3-row,
+.left-stack > .chronos-phase3-panel .p3-grid{
+  width:max-content!important;
+  min-width:100%!important;
+  max-width:none!important;
+  gap:5px!important;
+}
+.left-stack > .chronos-phase3-panel .p3-row .btn,
+.left-stack > .chronos-phase3-panel .p3-grid .btn,
+.left-stack > .chronos-phase3-panel .p3-compare-card .btn{
+  font-size:6.5px!important;
+  line-height:1.2!important;
+  padding:4px 6px!important;
+  min-height:23px!important;
+  white-space:nowrap!important;
+}
+.left-stack > .chronos-phase3-panel .p3-row input[type=text],
+.left-stack > .chronos-phase3-panel input[type=text],
+.left-stack > .chronos-phase3-panel select{
+  font-size:7px!important;
+  line-height:1.25!important;
+  padding:4px 5px!important;
+  min-height:23px!important;
+}
+.left-stack > .chronos-phase3-panel .p3-marker-go,
+.left-stack > .chronos-phase3-panel .p3-moment-info,
+.left-stack > .chronos-phase3-panel .p3-remove{
+  font-size:6.5px!important;
+  line-height:1.2!important;
+  padding:3px 5px!important;
+  white-space:nowrap!important;
+}
+.left-stack > .chronos-phase3-panel .p3-marker,
+.left-stack > .chronos-phase3-panel .p3-moment,
+.left-stack > .chronos-phase3-panel .p3-compare-card{
+  width:max-content!important;
+  min-width:100%!important;
+  max-width:none!important;
+  box-sizing:border-box!important;
+}
+@media(max-width:460px){
+  .left-stack > .chronos-phase3-panel .p3-section{padding:9px!important}
+  .left-stack > .chronos-phase3-panel .p3-heading{font-size:6.5px!important}
+  .left-stack > .chronos-phase3-panel .p3-note,
+  .left-stack > .chronos-phase3-panel .p3-legend span,
+  .left-stack > .chronos-phase3-panel .p3-type,
+  .left-stack > .chronos-phase3-panel label{font-size:6px!important}
+  .left-stack > .chronos-phase3-panel .p3-row .btn,
+  .left-stack > .chronos-phase3-panel .p3-grid .btn,
+  .left-stack > .chronos-phase3-panel .p3-compare-card .btn{font-size:6px!important}
+}
