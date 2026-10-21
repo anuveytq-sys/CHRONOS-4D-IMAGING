@@ -184,7 +184,7 @@ We will verify the actual build and deployment configuration before publishing.
 Phase 6 deliverable: A tested, integrated CHRONOS application with a polished interface, documented capabilities, and a verified deployment
 
 ## Scope and safety
-Phase 1 is the interface foundation; Phase 2 and Phase 3 add the temporal-media tools described above. Frame stepping remains approximate when source FPS metadata is unavailable. Phase 3 event detection uses downsampled visual differences and must be reviewed by a human; interpolation is a visual blend rather than true 3D reconstruction.
+Phase 1 is the interface foundation; Phase 2 and Phase 3 add temporal-media tools; Phase 4 adds browser-local heuristic tracking, constant-velocity forecasts, and 2D alternate-timeline simulations. Frame stepping remains approximate when source FPS metadata is unavailable. Phase 3 event detection and Phase 4 tracking/prediction must be reviewed by a human; interpolation is a visual blend rather than true 3D reconstruction.
 
 The OpenRouter key field is not saved or transmitted by this static frontend. Never commit API keys or embed secrets in public client-side code. Secure AI integration is planned for Phase 5.
 
