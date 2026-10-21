@@ -9,8 +9,8 @@ const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const dur=()=>Number.isFinite(video.duration)?video.duration:0;
 const toast=m=>{const el=$('toast');if(!el)return;el.textContent=m;el.classList.add('show');clearTimeout(toast.timer);toast.timer=setTimeout(()=>el.classList.remove('show'),2800)};
 const panel=document.createElement('section');panel.className='panel chronos-phase4-panel';panel.id='chronosPhase4Panel';
-panel.innerHTML='<div class="panel-head"><span class="panel-title">Futurecast / Phase 4</span><span class="panel-code">FCAST · 04</span><button class="icon-btn p4-close" id="p4Close" aria-label="Close Futurecast panel">✕</button></div><div class="panel-body p4-body">'+
-'<div class="p4-section"><div class="p4-heading">Motion analysis</div><p class="p4-note">Load a video, pause on a clear frame, then tap the target in the viewport to set a tracking point. Tracking is local and heuristic.</p><div class="p4-grid"><button class="btn" id="p4Arm">◎ Select target</button><button class="btn" id="p4Track">Track forward</button></div><div class="p4-row"><label for="p4Step">Sampling interval</label><select id="p4Step"><option value=".15">0.15 s</option><option value=".25" selected>0.25 s</option><option value=".5">0.50 s</option><option value="1">1.00 s</option></select></div><div class="p4-row"><span class="p4-label">Tracking status</span><strong id="p4TrackStatus">No target selected</strong></div><div class="p4-row"><span class="p4-label">Image velocity</span><strong id="p4Velocity">—</strong></div><div class="p4-row"><span class="p4-label">Track samples</span><strong id="p4Samples">0</strong></div></div>'+
+panel.innerHTML='<div class="panel-head"><span class="panel-title">AI Futurecast / Phase 4</span><span class="panel-code">FCAST · 04</span><button class="icon-btn p4-close" id="p4Close" aria-label="Close Futurecast panel">✕</button></div><div class="panel-body p4-body">'+
+'<div class="p4-section p4-ai-section"><div class="p4-heading">AI-generated future video · Optional</div><p class="p4-note">Pause the source video on a representative frame, describe what you want to happen next (optional), then generate a short AI-made continuation. The current frame is analysed by your selected OpenRouter vision model; the resulting scene description is sent to your selected video model.</p><label class="p4-ai-label" for="p4AiDirection">What should happen next?</label><textarea id="p4AiDirection" class="p4-ai-direction" rows="2" maxlength="500" placeholder="Optional: e.g. the car continues around the bend slowly"></textarea><div class="p4-grid"><button class="btn primary" id="p4AiGenerate">✦ Generate AI future video</button><button class="btn" id="p4AiClear">Clear result</button></div><div class="p4-note p4-warning">AI generation may use paid OpenRouter credits. Nothing runs until you tap Generate. The generated clip is a speculative visual continuation, not a factual prediction, and may not preserve every source detail.</div><div id="p4AiStatus" class="p4-ai-status" role="status" aria-live="polite">Ready when an OpenRouter key is saved in Settings.</div><video id="p4AiVideo" class="p4-ai-video" controls playsinline hidden></video><a id="p4AiDownload" class="btn p4-ai-download" hidden download="chronos-futurecast.mp4">⇩ Download generated video</a></div>'+'<div class="p4-section"><div class="p4-heading">Motion analysis</div><p class="p4-note">Load a video, pause on a clear frame, then tap the target in the viewport to set a tracking point. Tracking is local and heuristic.</p><div class="p4-grid"><button class="btn" id="p4Arm">◎ Select target</button><button class="btn" id="p4Track">Track forward</button></div><div class="p4-row"><label for="p4Step">Sampling interval</label><select id="p4Step"><option value=".15">0.15 s</option><option value=".25" selected>0.25 s</option><option value=".5">0.50 s</option><option value="1">1.00 s</option></select></div><div class="p4-row"><span class="p4-label">Tracking status</span><strong id="p4TrackStatus">No target selected</strong></div><div class="p4-row"><span class="p4-label">Image velocity</span><strong id="p4Velocity">—</strong></div><div class="p4-row"><span class="p4-label">Track samples</span><strong id="p4Samples">0</strong></div></div>'+
 '<div class="p4-section"><div class="p4-heading">Futurecast</div><div class="p4-row"><label for="p4Horizon">Prediction horizon</label><select id="p4Horizon"><option value="1">1 second</option><option value="2" selected>2 seconds</option><option value="3">3 seconds</option><option value="5">5 seconds</option><option value="10">10 seconds</option></select></div><div class="p4-grid"><button class="btn" id="p4Predict">Generate forecast</button><button class="btn" id="p4CompareObserved">Compare with observed</button><button class="btn" id="p4Clear">Clear overlays</button></div><div class="p4-note" id="p4ForecastStatus">Forecast awaits a usable track. Model is constant-velocity extrapolation.</div><div class="p4-legend"><i class="p4-observed"></i> observed <i class="p4-predicted"></i> predicted <i class="p4-branch-key"></i> simulated branch</div></div>'+
 '<div class="p4-section"><div class="p4-heading">Alternate timelines</div><p class="p4-note">Create branches from the same tracked endpoint. Parameters alter only a reproducible 2D kinematic simulation; no real alternate timeline is accessed.</p><div class="p4-row"><label for="p4Speed">Velocity multiplier</label><select id="p4Speed"><option value=".5">0.5×</option><option value=".75">0.75×</option><option value="1" selected>1.0×</option><option value="1.25">1.25×</option><option value="1.5">1.5×</option><option value="2">2.0×</option></select></div><div class="p4-row"><label for="p4Accel">Vertical acceleration (image units/s²)</label><input id="p4Accel" type="number" min="-0.5" max="0.5" step="0.05" value="0"></div><div class="p4-row"><label for="p4Name">Branch name</label><input id="p4Name" type="text" maxlength="40" placeholder="e.g. faster motion"></div><div class="p4-grid"><button class="btn" id="p4Branch">＋ Create branch</button><button class="btn" id="p4Compare">Compare branches</button></div><div class="p4-list" id="p4Branches"><span class="p4-note">No simulation branches yet.</span></div></div>'+
 '<div class="p4-section"><div class="p4-heading">Simulation playback & checkpoints</div><div class="p4-row"><button class="btn" id="p4Play">▶ Play simulation</button><button class="btn" id="p4Pause">Ⅱ Pause</button><button class="btn" id="p4Reset">↺ Reset</button></div><div class="p4-row"><label for="p4SimTime">Simulation time</label><input id="p4SimTime" type="range" min="0" max="10" step=".05" value="0"></div><div class="p4-row"><span class="p4-label">Current simulation time</span><strong id="p4SimLabel">0.00 s</strong></div><div class="p4-grid"><button class="btn" id="p4SaveCheckpoint">◆ Save checkpoint</button><button class="btn" id="p4RestoreCheckpoint">Restore latest</button></div><div class="p4-list" id="p4Checkpoints"><span class="p4-note">No simulation checkpoints.</span></div></div>'+
@@ -52,5 +52,71 @@ $('p4Horizon').onchange=()=>{updateSim();draw()};$('p4Branch').onclick=createBra
 $('p4Play').onclick=play;$('p4Pause').onclick=pause;$('p4Reset').onclick=()=>{pause();state.simTime=0;updateSim()};$('p4SimTime').oninput=e=>{pause();state.simTime=Number(e.target.value)||0;updateSim()};$('p4SaveCheckpoint').onclick=saveCheckpoint;$('p4RestoreCheckpoint').onclick=restore;
 $('predictionLayer').onchange=e=>{state.overlay=e.target.checked;draw();if(e.target.checked&&!state.track.length)toast('Future projection layer enabled. Select a target and track movement to generate a forecast.')};
 document.querySelectorAll('.nav-item[data-mode="future"]').forEach(b=>b.addEventListener('click',e=>{e.preventDefault();e.stopImmediatePropagation();panel.classList.add('p4-open','p4-highlight');setTimeout(()=>panel.classList.remove('p4-highlight'),1200)},true));
+
+let p4AiObjectUrl=null;
+const p4AiStatus=(message)=>{const el=$('p4AiStatus');if(el)el.textContent=message};
+const p4AiError=async(response)=>{let detail='';try{const body=await response.json();detail=body.error?.message||body.message||JSON.stringify(body)}catch(_){try{detail=await response.text()}catch(__){}}return new Error(detail||('OpenRouter request failed ('+response.status+').'))};
+async function p4GenerateAiFuture(){
+ const key=localStorage.getItem('chronos-openrouter-key')||'';
+ if(!key){p4AiStatus('Add your OpenRouter API key in Settings first.');$('settingsBtn')?.click();return}
+ if(!video.src||!video.videoWidth||!video.videoHeight){p4AiStatus('Load a video first, then pause on a clear frame.');return}
+ const button=$('p4AiGenerate');button.disabled=true;$('p4AiClear').disabled=true;video.pause();
+ try{
+  p4AiStatus('Reading the paused frame locally…');
+  const canvas=document.createElement('canvas');canvas.width=Math.min(1024,video.videoWidth);canvas.height=Math.max(1,Math.round(video.videoHeight*canvas.width/video.videoWidth));
+  const cx=canvas.getContext('2d');if(!cx)throw new Error('Could not prepare a frame from this video.');
+  cx.drawImage(video,0,0,canvas.width,canvas.height);
+  const frameData=canvas.toDataURL('image/jpeg',.8);
+  const visionModel=(localStorage.getItem('chronos-vision-model-id')||'google/gemini-2.5-flash').trim();
+  const videoModel=(localStorage.getItem('chronos-model-id')||'bytedance/seedance-2.0').trim();
+  if(!visionModel||!videoModel)throw new Error('Set both the vision and video model IDs in Settings.');
+  p4AiStatus('AI is interpreting the paused frame…');
+  const visionResponse=await fetch('https://openrouter.ai/api/v1/chat/completions',{method:'POST',headers:{'Authorization':'Bearer '+key,'Content-Type':'application/json'},body:JSON.stringify({model:visionModel,temperature:.3,max_tokens:450,messages:[{role:'user',content:[{type:'text',text:'Describe only the visible scene, main subjects, setting, camera view, and any motion clues in this single video frame. Then suggest a concise, visually coherent and explicitly speculative next moment. Do not claim to know the real future. Return a compact scene description suitable as context for a short video generator.'},{type:'image_url',image_url:{url:frameData}}]}]})});
+  if(!visionResponse.ok)throw await p4AiError(visionResponse);
+  const visionData=await visionResponse.json();const raw=visionData.choices?.[0]?.message?.content;
+  const sceneDescription=typeof raw==='string'?raw:Array.isArray(raw)?raw.map(part=>part.text||'').join('\n'):'';
+  if(!sceneDescription.trim())throw new Error('The vision model returned no scene description. Check that the selected model supports image input.');
+  const catalogResponse=await fetch('https://openrouter.ai/api/v1/videos/models',{headers:{'Authorization':'Bearer '+key}});
+  if(!catalogResponse.ok)throw await p4AiError(catalogResponse);
+  const catalog=await catalogResponse.json();const modelInfo=(catalog.data||[]).find(item=>item.id===videoModel||item.canonical_slug===videoModel);
+  if(!modelInfo)throw new Error('Video model "'+videoModel+'" was not found in OpenRouter’s current video catalog. Check the model ID in Settings.');
+  const durations=modelInfo.supported_durations||[];const duration=durations.includes(4)?4:durations.length?durations.reduce((best,value)=>Math.abs(value-4)<Math.abs(best-4)?value:best,durations[0]):4;
+  const resolutions=modelInfo.supported_resolutions||[];const resolution=resolutions.includes('720p')?'720p':resolutions[0];
+  const sourceRatio=video.videoWidth/video.videoHeight;const ratios=modelInfo.supported_aspect_ratios||[];
+  const aspect=ratios.length?ratios.reduce((best,value)=>{const parts=value.split(':').map(Number),ratio=parts[0]/parts[1];return Math.abs(Math.log(ratio/sourceRatio))<Math.abs(Math.log((best.split(':').map(Number)[0]/best.split(':').map(Number)[1])/sourceRatio))?value:best},ratios[0]):null;
+  const direction=$('p4AiDirection').value.trim()||'Continue the scene naturally with plausible movement based on the visible subjects and setting.';
+  const prompt='Create a short, coherent, realistic-looking speculative continuation of this video scene. Visual context inferred from the paused source frame: '+sceneDescription+'. Requested direction: '+direction+'. Continue the visible action naturally, maintain a consistent setting and camera style, and avoid captions or UI text. This is an imagined possibility, not a claim about what actually happened.';
+  const request={model:videoModel,prompt,duration,generate_audio:false};if(resolution)request.resolution=resolution;if(aspect)request.aspect_ratio=aspect;
+  p4AiStatus('Submitting the video-generation request… Check OpenRouter usage/pricing; this step may incur a charge.');
+  const submitResponse=await fetch('https://openrouter.ai/api/v1/videos',{method:'POST',headers:{'Authorization':'Bearer '+key,'Content-Type':'application/json'},body:JSON.stringify(request)});
+  if(!submitResponse.ok)throw await p4AiError(submitResponse);
+  let job=await submitResponse.json();if(!job.id)throw new Error('OpenRouter did not return a video job ID.');
+  const pollingUrl=new URL(job.polling_url||('/api/v1/videos/'+encodeURIComponent(job.id)),'https://openrouter.ai');
+  const deadline=Date.now()+12*60*1000;
+  while(!['completed','failed','cancelled','expired'].includes(job.status)){
+   if(Date.now()>deadline)throw new Error('Video generation is taking longer than expected. Job '+job.id+' was submitted; check OpenRouter before retrying to avoid duplicate charges.');
+   p4AiStatus('Generating future video… status: '+(job.status||'pending')+'. This can take a few minutes.');
+   await new Promise(resolve=>setTimeout(resolve,15000));
+   const pollResponse=await fetch(pollingUrl.href,{headers:{'Authorization':'Bearer '+key}});
+   if(!pollResponse.ok)throw await p4AiError(pollResponse);
+   job=await pollResponse.json();
+  }
+  if(job.status!=='completed')throw new Error(job.error||('Video generation ended with status '+job.status+'.'));
+  p4AiStatus('Generation complete. Retrieving the video…');
+  const outputUrl=job.unsigned_urls?.[0]||('https://openrouter.ai/api/v1/videos/'+encodeURIComponent(job.id)+'/content?index=0');
+  const downloadResponse=await fetch(outputUrl,{headers:{'Authorization':'Bearer '+key}});
+  if(!downloadResponse.ok)throw await p4AiError(downloadResponse);
+  const blob=await downloadResponse.blob();if(!blob.size)throw new Error('OpenRouter returned an empty video file.');
+  if(p4AiObjectUrl)URL.revokeObjectURL(p4AiObjectUrl);p4AiObjectUrl=URL.createObjectURL(blob);
+  const player=$('p4AiVideo');player.src=p4AiObjectUrl;player.hidden=false;
+  const link=$('p4AiDownload');link.href=p4AiObjectUrl;link.hidden=false;
+  p4AiStatus('Future video ready · '+duration+' seconds · model '+videoModel+'. This is an AI-generated estimate, not observed footage.');
+  player.scrollIntoView({behavior:'smooth',block:'nearest'});
+ }catch(error){p4AiStatus('Futurecast error: '+(error?.message||String(error)));toast('AI Futurecast could not complete. Check the Futurecast status message.')}
+ finally{button.disabled=false;$('p4AiClear').disabled=false}
+}
+$('p4AiGenerate').onclick=p4GenerateAiFuture;
+$('p4AiClear').onclick=()=>{if(p4AiObjectUrl){URL.revokeObjectURL(p4AiObjectUrl);p4AiObjectUrl=null}const player=$('p4AiVideo');player.pause();player.removeAttribute('src');player.load();player.hidden=true;const link=$('p4AiDownload');link.removeAttribute('href');link.hidden=true;p4AiStatus('Result cleared. Ready for another generation.');};
+
 $('p4Close').onclick=()=>panel.classList.remove('p4-open');document.addEventListener('keydown',e=>{if(e.key==='Escape')panel.classList.remove('p4-open')});window.addEventListener('resize',resize);video.addEventListener('loadedmetadata',()=>{state.seed=null;state.track=[];state.forecast=null;state.branches=[];state.activeBranch=null;pause();renderBranches();updateMetrics()});video.addEventListener('seeked',()=>{if(!state.tracking)draw()});resize();renderBranches();renderCheckpoints();updateMetrics();updateSim();
 })();
