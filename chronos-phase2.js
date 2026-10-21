@@ -163,7 +163,10 @@ async function captureTimes(times){
 }
 
 async function buildFusion(){
- if(state.busy)return toast('Temporal sampling is already running.');
+  // Motion-only core owns temporal compositing when present. Prevent a duplicate
+  // frame-capture pipeline from running concurrently and doubling mobile memory use.
+  if(window.__chronosMotionCore)return;
+  if(state.busy)return toast('Temporal sampling is already running.');
  if(!video.src||!duration())return toast('Load a recording first.');
  syncRange();
  const d=duration();
