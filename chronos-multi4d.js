@@ -8,6 +8,7 @@ const video=$('video');
 const layerPanel=[...document.querySelectorAll('.right-stack .panel')].find(p=>/Temporal layers/i.test(p.querySelector('.panel-title')?.textContent||''));
 const layerBody=layerPanel?.querySelector('.panel-body');
 if(!video||!layerPanel||!layerBody||$('multi4dPanel'))return;
+layerPanel.classList.add('chronos-temporal-layers-panel');
 const key=()=>localStorage.getItem('chronos-openrouter-key')||$('apiKey')?.value.trim()||'';
 const toast=message=>{const el=$('toast');if(el){el.textContent=message;el.classList.add('show');clearTimeout(toast.timer);toast.timer=setTimeout(()=>el.classList.remove('show'),3200)}};
 const panel=document.createElement('section');
