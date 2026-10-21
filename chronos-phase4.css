@@ -31,7 +31,7 @@
 /* Optional AI Futurecast video workflow. */
 .chronos-phase4-panel .p4-ai-section{border-color:#2c6970;background:linear-gradient(145deg,#0a1b24,#07121a)}
 .chronos-phase4-panel .p4-ai-label{display:block;font-size:8px;color:#9bb3bf;margin:5px 0 3px}
-.chronos-phase4-panel .p4-ai-direction{display:block;width:100%;min-width:0;resize:vertical;background:#050b10;border:1px solid #294651;border-radius:5px;padding:6px;color:#e8f8fb;font:8px/1.4 inherit;margin-bottom:5px}
+.chronos-phase4-panel .p4-ai-direction{display:block;width:100%;min-width:0;resize:vertical;background:#050b10;border:1px solid #294651;border-radius:5px;padding:6px;color:#e8f8fb;font-size:8px;line-height:1.4;font-family:inherit;margin-bottom:5px}
 .chronos-phase4-panel .p4-ai-direction:focus{outline:1px solid var(--cyan);border-color:var(--cyan)}
 .chronos-phase4-panel .p4-ai-status{font-size:8px;line-height:1.45;color:#c5e7e8;background:#071018;border:1px solid #203d49;border-radius:5px;padding:6px;overflow-wrap:anywhere}
 .chronos-phase4-panel .p4-ai-video{display:block;width:100%;max-height:240px;margin-top:7px;background:#020407;border:1px solid #28505b;border-radius:6px}
