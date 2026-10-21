@@ -48,7 +48,7 @@ const css=`
 #chronosM4TrailViewport .m4v-thumb.active{border-color:#62f4ed;opacity:1}
 #chronosM4TrailViewport .m4v-actions{display:flex;align-items:center;gap:6px;flex-wrap:wrap;flex:0 0 auto;margin-top:5px}
 
-#chronosM4TrailViewport .m4-image-wrap{display:block;isolation:isolate}
+#chronosM4TrailViewport .m4v-image-wrap{display:block;isolation:isolate}
 #chronosM4TrailViewport .m4v-echo-grid{position:absolute;inset:0;display:block;overflow:hidden;background:#02070d}
 #chronosM4TrailViewport .m4v-echo-tile{position:absolute;inset:-3%;overflow:hidden;background:#04101a;opacity:var(--echo-opacity,.25);mix-blend-mode:screen;transform:translate3d(var(--echo-x,0),var(--echo-y,0),0) scale(var(--echo-scale,1));transform-origin:center;transition:opacity .8s ease,filter .8s ease;will-change:transform,opacity}
 #chronosM4TrailViewport .m4v-echo-tile img{display:block;width:100%;height:100%;object-fit:cover;filter:saturate(.82) contrast(1.08);animation:m4EchoDrift 8s ease-in-out infinite alternate;animation-delay:var(--echo-delay,0s)}
@@ -58,8 +58,7 @@ const css=`
 #chronosM4TrailViewport .m4v-echo-tile.active{opacity:var(--echo-active-opacity,.48);filter:drop-shadow(0 0 12px #62f4ed66)}
 #chronosM4TrailViewport .m4v-echo-label{position:absolute;left:8px;bottom:8px;z-index:2;display:flex;flex-direction:column;gap:2px;padding:5px 7px;max-width:80%;background:#02070d99;border:1px solid #62f4ed55;border-radius:5px;color:#e9f5fa;font-size:clamp(8px,1vw,11px);opacity:.88;pointer-events:none}
 #chronosM4TrailViewport .m4v-echo-date{color:#7ff6ef;font-weight:800}
-#chronosM4TrailViewport .m4v-echo-tile.active{opacity:1;border-color:#62f4ed;box-shadow:0 0 18px #62f4ed55}
-#chronosM4TrailViewport .m4v-echo-tile.active img{filter:saturate(1.2) brightness(1.08)}
+#chronosM4TrailViewport .m4v-echo-tile.active img{filter:saturate(1.08) brightness(1.04)}
 #chronosM4TrailViewport .m4v-echo-label{position:absolute;z-index:1;left:0;right:0;bottom:0;padding:5px;font-size:clamp(8px,.9vw,11px);line-height:1.3;color:#f0fbff;text-shadow:0 1px 3px #000;overflow-wrap:anywhere}
 #chronosM4TrailViewport .m4v-echo-date{display:block;color:#7ff6ef;font-weight:800;margin-bottom:2px}
 #chronosM4TrailViewport .m4v-caption{z-index:2;pointer-events:none}
