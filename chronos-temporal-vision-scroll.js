@@ -2,8 +2,7 @@
   'use strict';
 
   function enableTemporalVisionScrolling() {
-    // Target the actual Phase 2 panel by ID. Searching every .panel by text
-    // can accidentally select an ancestor/child panel and leave this panel unchanged.
+    // Target only the Temporal Vision Engine panel; leave all other panels alone.
     const panel = document.getElementById('chronosPhase2Panel');
     if (!panel) return false;
 
@@ -11,13 +10,13 @@
     const body = panel.querySelector(':scope > .panel-body');
     if (!body) return false;
 
-    // Give the content a definite scrollable viewport. The page/layout is
-    // intentionally overflow-hidden, so the panel body itself must scroll.
+    // Let the layout CSS size this panel to the combined right-side slot.
+    // Do not impose a viewport-based height here: that was shrinking it.
     panel.style.setProperty('display', 'flex', 'important');
     panel.style.setProperty('flex-direction', 'column', 'important');
     panel.style.setProperty('min-height', '0', 'important');
-    panel.style.setProperty('height', 'calc(100dvh - 90px)', 'important');
-    panel.style.setProperty('max-height', 'calc(100dvh - 90px)', 'important');
+    panel.style.setProperty('width', '100%', 'important');
+    panel.style.setProperty('max-width', '100%', 'important');
     panel.style.setProperty('overflow', 'hidden', 'important');
 
     if (head) head.style.setProperty('flex', '0 0 auto', 'important');
