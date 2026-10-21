@@ -185,7 +185,7 @@
   position:relative!important;inset:auto!important;float:none!important;transform:none!important;
   display:flex!important;flex:0 0 auto!important;flex-direction:column!important;
   width:100%!important;min-width:0!important;max-width:100%!important;
-  height:clamp(150px,23vh,220px)!important;max-height:clamp(150px,23vh,220px)!important;
+  height:clamp(150px,17vh,175px)!important;max-height:clamp(150px,17vh,175px)!important;
   min-height:0!important;margin:0!important;align-self:stretch!important;
   z-index:auto!important;visibility:visible!important;opacity:1!important;
   box-shadow:none!important;border-radius:10px!important;
