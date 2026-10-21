@@ -42,6 +42,7 @@ jobs:
           test -s chronos-phase3.js
           test -s chronos-phase4.css
           test -s chronos-phase4.js
+          node --check chronos-phase4.js
           echo "CHRONOS entry point and Phase 2–4 engines found"
           test -f .nojekyll || touch .nojekyll
           python3 - <<'PY'
@@ -53,6 +54,8 @@ jobs:
           phase3_css = Path('chronos-phase3.css').read_text(encoding='utf-8')
           phase4_css = Path('chronos-phase4.css').read_text(encoding='utf-8')
           html = page.read_text(encoding='utf-8')
+          if 'chronos-phase4.css' not in html or 'chronos-phase4.js' not in html:
+              raise SystemExit('Phase 4 assets are not linked from index.html')
           marker = '<!-- CHRONOS_IMMERSIVE_CSS -->'
           if marker not in html:
               injection = marker + '<style id="chronos-immersive-css">\n' + css + '\n' + refinement + '\n' + phase2_css + '\n' + phase3_css + '\n' + phase4_css + '\n</style>'
