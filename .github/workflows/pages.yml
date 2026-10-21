@@ -47,7 +47,7 @@ jobs:
           css = Path('chronos-responsive.css').read_text(encoding='utf-8')
           refinement = Path('chronos-viewport-refinement.css').read_text(encoding='utf-8')
           phase2_css = Path('chronos-phase2.css').read_text(encoding='utf-8')
-          phase3_css = Path('chronos-phase3.css').read_text(encoding='utf-8')
+          phase3_css = Path('chronos-phase3.css').read_text(encoding='utf-8')\n          phase4_css = Path('chronos-phase4.css').read_text(encoding='utf-8')
           html = page.read_text(encoding='utf-8')
           marker = '<!-- CHRONOS_IMMERSIVE_CSS -->'
           if marker not in html:
