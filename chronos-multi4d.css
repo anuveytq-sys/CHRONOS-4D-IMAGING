@@ -148,3 +148,32 @@
   .right-stack .chronos-temporal-layers-panel{width:calc(100vw - 18px)!important;max-width:calc(100vw - 18px)!important;right:9px!important}
   #multi4dPanel .multi4d-stage,#multi4dPanel .multi4d-sources{grid-template-columns:minmax(0,1fr)}
 }
+
+
+/* Restore Temporal Layers to the normal right-rail panel position and sizing.
+   No close or floating reopen controls; keep Multi 4D inside the scrollable panel. */
+.right-stack .chronos-temporal-layers-panel{
+  position:relative!important;inset:auto!important;display:flex!important;flex-direction:column!important;
+  width:auto!important;max-width:100%!important;height:clamp(150px,17vh,175px)!important;
+  max-height:clamp(150px,17vh,175px)!important;min-height:0!important;min-width:0!important;
+  margin:0!important;z-index:auto!important;box-shadow:var(--shadow)!important;border-radius:12px!important;
+}
+.right-stack .chronos-temporal-layers-panel>.panel-head{padding:8px 10px!important}
+.right-stack .chronos-temporal-layers-panel>.panel-body{
+  flex:1 1 auto!important;min-height:0!important;max-height:none!important;width:100%!important;
+  overflow-y:auto!important;overflow-x:hidden!important;overscroll-behavior:contain!important;
+  -webkit-overflow-scrolling:touch!important;touch-action:pan-y!important;padding:8px!important;
+}
+.chronos-temporal-close,.chronos-temporal-toggle{display:none!important}
+.chronos-temporal-hidden{display:flex!important}
+@media(max-width:1050px){
+  .right-stack .chronos-temporal-layers-panel{position:relative!important;inset:auto!important;width:auto!important;max-width:100%!important;height:150px!important;max-height:150px!important;z-index:auto!important}
+}
+@media(max-width:720px){
+  .right-stack .chronos-temporal-layers-panel{position:relative!important;inset:auto!important;width:auto!important;max-width:100%!important;height:160px!important;max-height:160px!important;z-index:auto!important}
+}
+@media(max-width:460px){
+  .right-stack .chronos-temporal-layers-panel{height:155px!important;max-height:155px!important}
+}
+/* The right rail starts a little lower while Temporal Layers stays its first panel. */
+@media(min-width:1051px){.right-stack{padding-top:8px!important}}
