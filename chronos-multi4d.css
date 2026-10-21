@@ -246,9 +246,13 @@
   width:100%!important;min-width:0!important;
 }
 
-/* Compact Multi 4D controls to match surrounding Temporal Layers content; preserve all behavior and outer panel geometry. */
+/* Keep the original readable Multi 4D content width so grid controls do not collapse vertically.
+   Only compact its typography and controls; preserve all behavior and outer panel geometry. */
 .right-stack>.chronos-temporal-layers-panel>.panel-body>#multi4dPanel{
- width:100%!important;min-width:0!important;max-width:100%!important;margin:6px 0 0!important;padding:5px!important;overflow:visible!important;font-size:9px!important;line-height:1.35!important;
+ display:block!important;width:260px!important;min-width:260px!important;max-width:none!important;
+ margin:6px 0 0!important;padding:5px!important;overflow:visible!important;
+ writing-mode:horizontal-tb!important;white-space:normal!important;
+ font-size:9px!important;line-height:1.35!important;
 }
 .right-stack>.chronos-temporal-layers-panel>.panel-body>#multi4dPanel *{font-size:9px!important;line-height:1.35!important}
 .right-stack>.chronos-temporal-layers-panel>.panel-body>#multi4dPanel .multi4d-heading{font-size:9px!important;gap:5px!important;letter-spacing:.04em!important}
