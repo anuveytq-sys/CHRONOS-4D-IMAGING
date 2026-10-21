@@ -115,8 +115,10 @@
 }
 
 
-/* Layout correction: Time Navigator belongs under the Temporal Coordinate System. */
+/* Layout correction: Time Navigator precedes the Temporal Coordinate System; keep the coordinate panel last in the left stack without overlap. */
 .left-stack>.timeline-panel{
+  position:relative;
+  visibility:visible;
   margin-top:8px;
   width:100%;
   max-width:100%;
