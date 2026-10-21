@@ -34,7 +34,7 @@ const dataURL=()=>{
 };
 const responseText=data=>data?.choices?.[0]?.message?.content||'';
 function extractUrls(text){
- const urls=[...(text.matchAll(/https?:\\/\\/[^\\s<>"'\\])}]+/g))].map(m=>m[0].replace(/[.,;]+$/,''));
+ const urls=[...(text.matchAll(/https?:\/\/\S+/g))].map(m=>m[0].replace(/[.,;]+$/,''));
  return [...new Set(urls)].filter(u=>/^https?:/.test(u)).slice(0,12);
 }
 async function openRouterJSON(path,body,apiKey){
@@ -65,7 +65,7 @@ async function run(){
   imgs=imgs.filter(x=>x&&typeof x.url==='string'&&/^https?:\/\//i.test(x.url)).slice(0,8);
   if(!imgs.length){
    const searchText=raw+'\n'+JSON.stringify(parsed?.searches||[]);
-   imgs=extractUrls(searchText).filter(u=>/\\.(jpe?g|png|webp)(\\?|$)/i.test(u)).map(url=>({url,page:url,date:'unknown',caption:'Web image candidate'}));
+   imgs=extractUrls(searchText).filter(u=>/\.(jpe?g|png|webp)(\?|$)/i.test(u)).map(url=>({url,page:url,date:'unknown',caption:'Web image candidate'}));
   }
   const result=$('multi4dResult'),stage=$('multi4dStage'),sources=$('multi4dSources');
   result.hidden=false;$('multi4dPlace').textContent='PLACE MATCH: '+place+' · CONFIDENCE: '+(parsed?.confidence||'unverified');
