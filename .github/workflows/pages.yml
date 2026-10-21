@@ -47,11 +47,13 @@ jobs:
           test -s chronos-multi4d.js
           test -s chronos-motion-core.js
           test -s chronos-motion-bind-cleanup.js
+          test -s chronos-temporal-vision-scroll.js
           node --check chronos-phase4.js
           node --check chronos-settings-tools.js
           node --check chronos-multi4d.js
           node --check chronos-motion-core.js
           node --check chronos-motion-bind-cleanup.js
+          node --check chronos-temporal-vision-scroll.js
           echo "CHRONOS entry point and Phase 2–4 engines found"
           test -f .nojekyll || touch .nojekyll
           python3 - <<'PY'
@@ -90,8 +92,11 @@ jobs:
           settings_marker = '<!-- CHRONOS_SETTINGS_TOOLS -->'
           if settings_marker not in html and 'src="./chronos-settings-tools.js"' not in html and 'src="chronos-settings-tools.js"' not in html:
               html = html.replace('</body>', settings_marker + '<script src="chronos-settings-tools.js"></script></body>', 1)
+          temporal_scroll_marker = '<!-- CHRONOS_TEMPORAL_VISION_SCROLL -->'
+          if temporal_scroll_marker not in html and 'chronos-temporal-vision-scroll.js' not in html:
+              html = html.replace('</body>', temporal_scroll_marker + '<script src="chronos-temporal-vision-scroll.js"></script></body>', 1)
           page.write_text(html, encoding='utf-8')
-          print('CHRONOS responsive CSS, Phase 2–4 assets, Multi 4D Timeline, Motion Core, and Settings tools prepared for deployment.')
+          print('CHRONOS responsive CSS, Phase 2–4 assets, Multi 4D Timeline, Motion Core, Settings tools, and Temporal Vision scrolling prepared for deployment.')
           PY
 
       - name: Upload complete site
