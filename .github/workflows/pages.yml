@@ -45,9 +45,11 @@ jobs:
           test -s chronos-settings-tools.js
           test -s chronos-multi4d.css
           test -s chronos-multi4d.js
+          test -s chronos-motion-core.js
           node --check chronos-phase4.js
           node --check chronos-settings-tools.js
           node --check chronos-multi4d.js
+          node --check chronos-motion-core.js
           echo "CHRONOS entry point and Phase 2–4 engines found"
           test -f .nojekyll || touch .nojekyll
           python3 - <<'PY'
@@ -82,12 +84,16 @@ jobs:
           if multi4d_marker not in html and 'chronos-multi4d.js' not in html:
               script = multi4d_marker + '<script src="chronos-multi4d.js?v=20261021-horizontalcompact2"></script>'
               html = html.replace('</body>', script + '</body>', 1)
+          motion_marker = '<!-- CHRONOS_MOTION_CORE -->'
+          if motion_marker not in html and 'chronos-motion-core.js' not in html:
+              script = motion_marker + '<script src="chronos-motion-core.js?v=20261021-motiononly1"></script>'
+              html = html.replace('</body>', script + '</body>', 1)
           settings_marker = '<!-- CHRONOS_SETTINGS_TOOLS -->'
           if settings_marker not in html and 'src="./chronos-settings-tools.js"' not in html and 'src="chronos-settings-tools.js"' not in html:
               script = settings_marker + '<script src="chronos-settings-tools.js"></script>'
               html = html.replace('</body>', script + '</body>', 1)
           page.write_text(html, encoding='utf-8')
-          print('CHRONOS responsive CSS, Phase 2–4 assets, Multi 4D Timeline, and Settings tools prepared for deployment.')
+          print('CHRONOS responsive CSS, Phase 2–4 assets, Multi 4D Timeline, Motion Core, and Settings tools prepared for deployment.')
           PY
 
       - name: Upload complete site
