@@ -37,7 +37,9 @@ jobs:
           test -s chronos-viewport-refinement.css
           test -s chronos-phase2.css
           test -s chronos-phase2.js
-          echo "CHRONOS entry point, responsive shells, and Phase 2 engine found"
+          test -s chronos-phase3.css
+          test -s chronos-phase3.js
+          echo "CHRONOS entry point, responsive shells, Phase 2, and Phase 3 engines found"
           test -f .nojekyll || touch .nojekyll
           python3 - <<'PY'
           from pathlib import Path
@@ -45,17 +47,22 @@ jobs:
           css = Path('chronos-responsive.css').read_text(encoding='utf-8')
           refinement = Path('chronos-viewport-refinement.css').read_text(encoding='utf-8')
           phase2_css = Path('chronos-phase2.css').read_text(encoding='utf-8')
+          phase3_css = Path('chronos-phase3.css').read_text(encoding='utf-8')
           html = page.read_text(encoding='utf-8')
           marker = '<!-- CHRONOS_IMMERSIVE_CSS -->'
           if marker not in html:
               injection = marker + '<style id="chronos-immersive-css">\n' + css + '\n' + refinement + '\n' + phase2_css + '\n</style>'
               html = html.replace('</head>', injection + '</head>', 1)
           script_marker = '<!-- CHRONOS_PHASE2_ENGINE -->'
-          if script_marker not in html:
+          if script_marker not in html and 'src="./chronos-phase2.js"' not in html and 'src="chronos-phase2.js"' not in html:
               script = script_marker + '<script src="chronos-phase2.js"></script>'
               html = html.replace('</body>', script + '</body>', 1)
+          phase3_marker = '<!-- CHRONOS_PHASE3_ENGINE -->'
+          if phase3_marker not in html and 'src="./chronos-phase3.js"' not in html and 'src="chronos-phase3.js"' not in html:
+              script = phase3_marker + '<script src="chronos-phase3.js"></script>'
+              html = html.replace('</body>', script + '</body>', 1)
           page.write_text(html, encoding='utf-8')
-          print('CHRONOS responsive CSS, viewport refinement, and Phase 2 engine injected for deployment.')
+          print('CHRONOS responsive CSS, viewport refinement, Phase 2, and Phase 3 engines prepared for deployment.')
           PY
 
       - name: Upload complete site
