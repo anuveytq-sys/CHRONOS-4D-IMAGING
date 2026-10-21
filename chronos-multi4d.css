@@ -1,0 +1,28 @@
+/* Additive styles for optional Multi 4D Timeline inside Temporal Layers. */
+.multi4d-panel{margin-top:16px;padding:12px;border:1px solid #28546a;border-radius:12px;background:linear-gradient(145deg,#0d1e2b,#08111a);min-width:0;overflow:hidden}
+.multi4d-heading{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;color:#7ff6ef;font-size:11px;font-weight:800;letter-spacing:.08em}
+.multi4d-badge{font-size:9px;border:1px solid #4c7890;border-radius:99px;padding:3px 6px;color:#a9d8e6}
+.multi4d-note,.multi4d-disclaimer{font-size:10px;line-height:1.5;color:#9ab0bd;overflow-wrap:anywhere}
+.multi4d-label{display:block;font-size:10px;color:#a8c5d4;margin:10px 0 5px}
+.multi4d-input{display:block;width:100%;min-width:0;padding:9px;border:1px solid #294858;border-radius:7px;background:#061019;color:#e9f5fa;font:inherit;font-size:11px}
+.multi4d-actions{display:flex;flex-wrap:wrap;gap:7px;margin-top:9px}
+.multi4d-actions .btn{white-space:normal;max-width:100%;font-size:10px}
+.multi4d-status{margin-top:10px;border-left:2px solid #62f4ed;padding:7px 8px;background:#07151e;color:#b8d0dc;font-size:10px;line-height:1.5;overflow-wrap:anywhere}
+.multi4d-result{margin-top:12px;min-width:0}
+.multi4d-place{font-size:10px;font-weight:750;color:#80f0b4;overflow-wrap:anywhere;margin-bottom:8px}
+.multi4d-stage{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;min-width:0}
+.multi4d-frame{position:relative;aspect-ratio:4/3;min-width:0;overflow:hidden;border:1px solid #294858;border-radius:7px;background:#03080d}
+.multi4d-frame img{width:100%;height:100%;object-fit:cover;display:block}
+.multi4d-frame>span{position:absolute;bottom:0;left:0;right:0;padding:5px;background:#02080dd9;color:#e5f5fa;font-size:8px;line-height:1.35;overflow-wrap:anywhere}
+.multi4d-original{border-color:#62f4ed}
+.multi4d-reference{animation:multi4dFade 1.2s ease both}
+.multi4d-animate .multi4d-original{animation:multi4dPulse 4s ease-in-out infinite}
+.multi4d-legend{margin-top:7px;font-size:8px;letter-spacing:.07em;color:#8298a8;line-height:1.5}
+.multi4d-sources{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;margin-top:8px;min-width:0}
+.multi4d-source{min-width:0;border:1px solid #213e4d;border-radius:7px;overflow:hidden;color:#9dcbdc;text-decoration:none;background:#07111a;font-size:9px;line-height:1.4}
+.multi4d-source img{width:100%;height:65px;object-fit:cover;display:block;background:#03080d}
+.multi4d-source>span{display:block;padding:6px;overflow-wrap:anywhere}
+.multi4d-unavailable{padding:7px}
+@keyframes multi4dFade{from{opacity:.2;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+@keyframes multi4dPulse{0%,100%{filter:brightness(.9)}50%{filter:brightness(1.08)}}
+@media(max-width:480px){.multi4d-stage,.multi4d-sources{grid-template-columns:minmax(0,1fr)}.multi4d-actions .btn{flex:1}}
