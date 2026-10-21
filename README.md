@@ -30,11 +30,11 @@ Goal: Add predictive visualization while clearly separating observed reality fro
 
 1. Motion analysis — implemented as an opt-in, browser-local heuristic tracker. The user selects a point on a paused frame; patch matching follows that region across sampled frames and reports image-coordinate trajectory and estimated velocity. Tracking can drift or fail under occlusion, camera movement, low contrast, or similar-looking regions. It is not a general-purpose object detector or verified scientific tracking.
 
-2. Futurecast — implemented as a constant-velocity extrapolation from the sampled track. Users can choose a prediction horizon and view the observed path separately from the dashed predicted path. Uncertainty grows with the horizon; the current engine does not claim calibrated confidence or physical speed.
+2. Futurecast — implemented as a constant-velocity extrapolation from the sampled track. Users can choose a prediction horizon and view the observed path separately from the dashed predicted path. After tracking a later segment, users can compare the forecast with subsequently observed samples using mean and maximum normalized image-coordinate error. Uncertainty grows with the horizon; the current engine does not claim calibrated confidence or physical speed.
 
 3. Alternate timelines — implemented as 2D kinematic simulation branches from the tracked endpoint. Users can change the velocity multiplier and vertical acceleration, name up to six branches, select one branch or compare them, and inspect the assumptions recorded for each branch.
 
-4. Simulation playback and checkpoints — implemented with play, pause, reset, adjustable simulation time, and reproducible in-session checkpoints that restore the saved branch parameters and simulation time.
+4. Simulation playback and checkpoints — implemented with play, pause, reset, adjustable simulation time, and selectable reproducible in-session checkpoints that restore the saved branch parameters, horizon, and simulation time.
 
 Phase 4 deliverable: A local predictive visualization engine with heuristic movement tracking, plausible future trajectories, and branching simulations.
 
