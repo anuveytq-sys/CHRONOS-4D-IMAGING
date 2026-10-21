@@ -79,8 +79,8 @@ jobs:
               script = phase4_marker + '<script src="chronos-phase4.js"></script>'
               html = html.replace('</body>', script + '</body>', 1)
           multi4d_marker = '<!-- CHRONOS_MULTI4D_ENGINE -->'
-          if multi4d_marker not in html and 'src="./chronos-multi4d.js"' not in html and 'src="chronos-multi4d.js"' not in html:
-              script = multi4d_marker + '<script src="chronos-multi4d.js"></script>'
+          if multi4d_marker not in html and 'chronos-multi4d.js' not in html:
+              script = multi4d_marker + '<script src="chronos-multi4d.js?v=20261021-layoutfix2"></script>'
               html = html.replace('</body>', script + '</body>', 1)
           settings_marker = '<!-- CHRONOS_SETTINGS_TOOLS -->'
           if settings_marker not in html and 'src="./chronos-settings-tools.js"' not in html and 'src="chronos-settings-tools.js"' not in html:
