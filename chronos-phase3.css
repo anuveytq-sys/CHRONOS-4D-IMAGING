@@ -117,7 +117,7 @@
 
 /* Layout correction: Time Navigator belongs under the Temporal Coordinate System. */
 .left-stack>.timeline-panel{
-  margin-top:-4px;
+  margin-top:8px;
   width:100%;
   max-width:100%;
   justify-self:stretch;
@@ -215,7 +215,7 @@
 .left-stack>.chronos-phase3-panel .p3-preview,
 .left-stack>.chronos-phase3-panel #p3Timeline{max-width:100%}
 @media(max-width:720px){
-  .left-stack>.timeline-panel{margin-top:-4px}
+  .left-stack>.timeline-panel{margin-top:8px}
   .left-stack>.chronos-phase3-panel{
     height:clamp(500px,70vh,640px)!important;
     max-height:clamp(500px,70vh,640px)!important;
