@@ -41,3 +41,29 @@
 @media(max-width:760px){
  .chronos-phase2-panel input[type="text"]{padding:3px;font-size:6px}
 }
+
+/* Phase 2 usability and temporal-effect clarity repair. */
+.chronos-phase2-panel{min-width:0;max-width:100%;overflow:visible}
+.chronos-phase2-panel .panel-body{min-height:0;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:#28515d #08121a}
+.chronos-phase2-panel .p2-effect-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+.chronos-phase2-panel .p2-effect{min-height:30px;padding:7px 5px!important;font-size:10px!important;line-height:1.25;white-space:normal}
+.chronos-phase2-panel .p2-section-title{font-size:10px}
+.chronos-phase2-panel .p2-control label{font-size:10px}
+.chronos-phase2-panel input[type=number],.chronos-phase2-panel input[type=text],.chronos-phase2-panel select{font-size:12px}
+.chronos-phase2-panel .p2-actions .btn{font-size:10px;padding:7px 5px}
+.chronos-phase2-panel .p2-status{font-size:10px;overflow-wrap:anywhere}
+.chronos-phase2-panel .p2-layer span{font-size:10px}
+.chronos-phase2-panel .p2-frame{font-size:10px}
+.chronos-phase2-panel .p2-frame button{font-size:10px;padding:5px}
+.chronos-phase2-panel .p2-effect-description{font-size:10px;line-height:1.45;color:#a8bec9;padding:7px 8px;margin-top:5px;border-left:2px solid var(--cyan);background:#061017;border-radius:0 5px 5px 0}
+#chronosTemporalCanvas{display:block;max-width:100%}
+@media(max-width:760px){
+ .chronos-phase2-panel .panel-body{gap:6px}
+ .chronos-phase2-panel .p2-section{padding:7px}
+ .chronos-phase2-panel .p2-section-title{font-size:10px;margin-bottom:5px}
+ .chronos-phase2-panel .p2-control label{font-size:10px}
+ .chronos-phase2-panel input[type=number],.chronos-phase2-panel input[type=text],.chronos-phase2-panel select{font-size:12px;padding:6px}
+ .chronos-phase2-panel .p2-actions .btn,.chronos-phase2-panel .p2-effect{font-size:10px!important;padding:7px 5px!important}
+ .chronos-phase2-panel .p2-layer span,.chronos-phase2-panel .p2-status,.chronos-phase2-panel .p2-frame{font-size:10px}
+ .chronos-phase2-panel .p2-effect-description{font-size:10px}
+}
