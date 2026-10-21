@@ -30,3 +30,33 @@
 .stack>.panel>.panel-body{flex:1 1 auto;min-width:0;min-height:0;max-width:100%;overflow:auto!important;overflow-x:auto!important;overflow-y:auto!important;overscroll-behavior:contain;touch-action:pan-x pan-y;scrollbar-width:thin;-webkit-overflow-scrolling:touch}
 .stack>.panel>.panel-body>*{max-width:none}.stack>.panel .p2-grid,.stack>.panel .p2-actions,.stack>.panel .p2-effect-grid{min-width:max-content}.stack>.panel .p2-effect-grid{grid-template-columns:repeat(3,minmax(82px,1fr));width:max-content}.stack>.panel .p2-effect{white-space:nowrap}.stack>.panel .stat-grid{min-width:210px}.stack>.panel .layer{min-width:190px}.stack>.panel .nav-item{min-width:190px}.chronos-phase2-panel{width:100%!important;max-width:none!important;min-width:0}.chronos-phase2-panel .panel-body{display:block;overflow:auto!important;overflow-x:auto!important;overflow-y:auto!important;white-space:normal}.chronos-phase2-panel .p2-section{width:max-content;min-width:100%}.timeline-panel{overflow:hidden!important}.timeline-panel>.panel-body{overflow:auto!important;overflow-x:auto!important;overflow-y:auto!important;touch-action:pan-x pan-y}
 @media(max-width:760px){.stack>.panel>.panel-body{max-height:none;touch-action:pan-x pan-y}.stack>.panel .p2-effect-grid{grid-template-columns:repeat(3,minmax(72px,1fr))}.stack>.panel .stat-grid{min-width:190px}.stack>.panel .layer{min-width:170px}.stack>.panel .nav-item{min-width:170px}}
+
+
+/* CHRONOS panel density refinement — compact cards, visible stacks, isolated scrolling.
+   Only panel sizing/layout is changed; each panel body remains independently scrollable. */
+.stack{display:flex;flex-direction:column;gap:6px;min-height:0}
+.left-stack,.right-stack{top:8px!important;bottom:92px!important;max-height:none!important;overflow:visible!important}
+.stack>.panel{height:clamp(150px,23vh,220px);max-height:clamp(150px,23vh,220px);min-height:0;flex:0 0 clamp(150px,23vh,220px)}
+.stack>.panel>.panel-head{padding:7px 9px;min-height:0}
+.stack>.panel>.panel-body{flex:1 1 auto;min-height:0;max-height:none;padding:7px 9px;overflow:auto!important;overflow-x:auto!important;overflow-y:auto!important;overscroll-behavior:contain;touch-action:pan-x pan-y;-webkit-overflow-scrolling:touch}
+.stack>.panel .p2-effect-grid{grid-template-columns:repeat(2,minmax(82px,1fr));width:max-content;max-width:none}
+.timeline-panel{height:104px!important;max-height:104px!important}
+@media(max-width:1100px){
+ .stack>.panel{height:clamp(132px,21vh,185px);max-height:clamp(132px,21vh,185px);flex-basis:clamp(132px,21vh,185px)}
+ .left-stack,.right-stack{bottom:84px!important}
+}
+@media(max-width:760px){
+ .left-stack,.right-stack{top:3px!important;bottom:80px!important;width:58px;max-height:none!important;overflow:visible!important}
+ .stack>.panel{height:clamp(112px,19vh,150px);max-height:clamp(112px,19vh,150px);flex-basis:clamp(112px,19vh,150px)}
+ .stack>.panel>.panel-head{padding:5px 4px}
+ .stack>.panel>.panel-body{padding:4px;max-height:none}
+ .stack>.panel .p2-effect-grid{grid-template-columns:repeat(2,minmax(72px,1fr))}
+ .timeline-panel{height:84px!important;max-height:84px!important}
+}
+@media(max-width:430px){
+ .left-stack,.right-stack{width:50px;bottom:74px!important}
+ .stack>.panel{height:104px;max-height:104px;flex-basis:104px}
+ .stack>.panel>.panel-head{padding:4px 3px}
+ .stack>.panel>.panel-body{padding:3px}
+ .timeline-panel{height:78px!important;max-height:78px!important}
+}
