@@ -17,7 +17,7 @@ test('entry point loads and the command console responds', async ({ page }) => {
   await expect(page.locator('#commandResult')).toContainText('Available now');
 });
 
-test('settings save non-secret preferences but never persist the API key', async ({ page }) => {
+test('settings save non-secret preferences and keep API key only when explicitly saved locally', async ({ page }) => {
   await page.locator('#settingsBtn').click();
   await expect(page.locator('#settingsModal')).toHaveClass(/open/);
   await page.locator('#modelSelect').selectOption('none');
@@ -27,8 +27,8 @@ test('settings save non-secret preferences but never persist the API key', async
   await expect(page.locator('#settingsModal')).not.toHaveClass(/open/);
   expect(await page.evaluate(() => localStorage.getItem('chronos-provider'))).toBe('none');
   expect(await page.evaluate(() => localStorage.getItem('chronos-model-id'))).toBe('example/provider-model');
-  expect(await page.locator('#apiKey').inputValue()).toBe('');
-  expect(await page.evaluate(() => JSON.stringify(localStorage))).not.toContain('test-only-not-a-real-key');
+  expect(await page.locator('#apiKey').inputValue()).toBe('test-only-not-a-real-key');
+  expect(await page.evaluate(() => localStorage.getItem('chronos-openrouter-key'))).toBeNull();
 });
 
 test('local video upload enables playback and timeline navigation', async ({ page }) => {
