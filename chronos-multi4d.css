@@ -38,3 +38,42 @@
 .settings-modal .modal-head{flex:0 0 auto}
 .settings-modal .modal-body{min-height:0;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;touch-action:pan-y}
 @media(max-width:720px){.settings-modal{padding:10px}.settings-modal .modal{max-height:calc(100dvh - 20px);width:100%}.settings-modal .modal-body{padding:14px}}
+
+
+/* Definitive viewport fix: preserve Temporal Layers as the sole container;
+   Multi 4D stays at the bottom and never floats as a separate feature. */
+.right-stack .chronos-temporal-layers-panel{display:flex!important;flex-direction:column!important;min-width:0!important;min-height:0!important;overflow:hidden!important}
+.right-stack .chronos-temporal-layers-panel>.panel-head{flex:0 0 auto!important;min-width:0!important}
+.right-stack .chronos-temporal-layers-panel>.panel-body{display:block!important;flex:1 1 auto!important;min-height:0!important;max-height:none!important;width:100%!important;min-width:0!important;overflow-y:auto!important;overflow-x:hidden!important;overscroll-behavior:contain!important;-webkit-overflow-scrolling:touch!important;touch-action:pan-y!important}
+#multi4dPanel{box-sizing:border-box!important;width:100%!important;max-width:100%!important;min-width:0!important;margin:10px 0 0!important;padding:8px!important;overflow:hidden!important;contain:none!important}
+#multi4dPanel *{box-sizing:border-box;max-width:100%}
+#multi4dPanel .multi4d-heading{font-size:10px;line-height:1.35}
+#multi4dPanel .multi4d-note,#multi4dPanel .multi4d-disclaimer{font-size:9px;line-height:1.4}
+#multi4dPanel .multi4d-input{width:100%;min-width:0;font-size:11px}
+#multi4dPanel .multi4d-actions{display:flex;flex-wrap:wrap;min-width:0}
+#multi4dPanel .multi4d-actions .btn{flex:1 1 95px;min-width:0;white-space:normal;overflow-wrap:anywhere}
+#multi4dPanel .multi4d-status{overflow-wrap:anywhere;word-break:normal}
+
+/* iOS Settings: fixed-height flex modal with a genuinely scrollable content area. */
+#settingsModal{position:fixed!important;inset:0!important;display:none;overflow-y:auto!important;overflow-x:hidden!important;align-items:center!important;justify-items:center!important;padding:10px!important;-webkit-overflow-scrolling:touch!important;overscroll-behavior:contain!important}
+#settingsModal.open{display:grid!important}
+#settingsModal>.modal{display:flex!important;flex-direction:column!important;min-height:0!important;height:min(680px,calc(100vh - 20px))!important;max-height:calc(100vh - 20px)!important;max-height:calc(100dvh - 20px)!important;width:min(520px,100%)!important;margin:0!important;overflow:hidden!important}
+#settingsModal>.modal>.modal-head{flex:0 0 auto!important}
+#settingsModal>.modal>.modal-body{display:block!important;flex:1 1 auto!important;min-height:0!important;height:auto!important;overflow-y:auto!important;overflow-x:hidden!important;overscroll-behavior:contain!important;-webkit-overflow-scrolling:touch!important;touch-action:pan-y!important;padding:14px!important}
+@media(max-width:760px){
+  /* Expand only the existing Temporal Layers panel on phones. The right rail
+     is otherwise too narrow to show its controls or host a usable scroll area. */
+  .right-stack .chronos-temporal-layers-panel{position:fixed!important;right:4px!important;left:auto!important;top:4px!important;bottom:auto!important;width:min(280px,calc(100vw - 58px))!important;max-width:calc(100vw - 58px)!important;height:min(58vh,430px)!important;max-height:min(58vh,430px)!important;min-height:0!important;z-index:40!important;box-shadow:0 12px 40px #000c!important}
+  .right-stack .chronos-temporal-layers-panel>.panel-head{padding:8px 9px!important}
+  .right-stack .chronos-temporal-layers-panel .panel-title{font-size:10px!important;letter-spacing:.1em!important}
+  .right-stack .chronos-temporal-layers-panel .panel-code{font-size:8px!important}
+  .right-stack .chronos-temporal-layers-panel>.panel-body{padding:8px!important}
+  #multi4dPanel{margin-top:10px!important;padding:7px!important}
+  #multi4dPanel .multi4d-stage,#multi4dPanel .multi4d-sources{grid-template-columns:repeat(2,minmax(0,1fr))}
+  #settingsModal{padding:10px!important}
+  #settingsModal>.modal{height:calc(100vh - 20px)!important;max-height:calc(100dvh - 20px)!important;width:100%!important}
+}
+@media(max-width:380px){
+  .right-stack .chronos-temporal-layers-panel{width:calc(100vw - 48px)!important;max-width:calc(100vw - 48px)!important}
+  #multi4dPanel .multi4d-stage,#multi4dPanel .multi4d-sources{grid-template-columns:minmax(0,1fr)}
+}
