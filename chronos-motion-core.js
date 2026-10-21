@@ -48,7 +48,7 @@ function estimateShift(reference,candidate){
  return {...best,confidence:baseline>0?(baseline-best.score)/baseline:0};
 }
 function alignImage(image,reference,shift){
- const sw=video.videoWidth||640,sh=video.videoHeight||360;
+ const sw=image.width||video.videoWidth||640,sh=image.height||video.videoHeight||360;
  const c=document.createElement('canvas');c.width=sw;c.height=sh;
  const x=c.getContext('2d');x.drawImage(reference,0,0,sw,sh);
  // Use the reference frame to fill the small borders revealed by camera translation.
@@ -65,7 +65,7 @@ async function makeBackground(images){
  }
  const c=document.createElement('canvas');c.width=w;c.height=h;c.getContext('2d').putImageData(out,0,0);return c;
 }
-function makeMotionLayer(image,bg){const sw=video.videoWidth||640,sh=video.videoHeight||360,mw=bg.width,mh=bg.height;const small=document.createElement('canvas');small.width=mw;small.height=mh;const sx=small.getContext('2d',{willReadFrequently:true});sx.drawImage(image,0,0,mw,mh);const a=sx.getImageData(0,0,mw,mh),b=bg.getContext('2d',{willReadFrequently:true}).getImageData(0,0,mw,mh),m=sx.createImageData(mw,mh),threshold=36;for(let p=0;p<a.data.length;p+=4){const dr=Math.abs(a.data[p]-b.data[p]),dg=Math.abs(a.data[p+1]-b.data[p+1]),db=Math.abs(a.data[p+2]-b.data[p+2]),d=(dr+dg+db)/3;const v=d>threshold?Math.min(255,(d-threshold)*5):0;m.data[p]=m.data[p+1]=m.data[p+2]=255;m.data[p+3]=v}const mask=document.createElement('canvas');mask.width=mw;mask.height=mh;mask.getContext('2d').putImageData(m,0,0);const full=document.createElement('canvas');full.width=sw;full.height=sh;const fx=full.getContext('2d');fx.drawImage(image,0,0,sw,sh);fx.globalCompositeOperation='destination-in';fx.drawImage(mask,0,0,sw,sh);fx.globalCompositeOperation='source-over';return{image:full,mask}}
+function makeMotionLayer(image,bg){const sw=image.width||video.videoWidth||640,sh=image.height||video.videoHeight||360,mw=bg.width,mh=bg.height;const small=document.createElement('canvas');small.width=mw;small.height=mh;const sx=small.getContext('2d',{willReadFrequently:true});sx.drawImage(image,0,0,mw,mh);const a=sx.getImageData(0,0,mw,mh),b=bg.getContext('2d',{willReadFrequently:true}).getImageData(0,0,mw,mh),m=sx.createImageData(mw,mh),threshold=36;for(let p=0;p<a.data.length;p+=4){const dr=Math.abs(a.data[p]-b.data[p]),dg=Math.abs(a.data[p+1]-b.data[p+1]),db=Math.abs(a.data[p+2]-b.data[p+2]),d=(dr+dg+db)/3;const v=d>threshold?Math.min(255,(d-threshold)*5):0;m.data[p]=m.data[p+1]=m.data[p+2]=255;m.data[p+3]=v}const mask=document.createElement('canvas');mask.width=mw;mask.height=mh;mask.getContext('2d').putImageData(m,0,0);const full=document.createElement('canvas');full.width=sw;full.height=sh;const fx=full.getContext('2d');fx.drawImage(image,0,0,sw,sh);fx.globalCompositeOperation='destination-in';fx.drawImage(mask,0,0,sw,sh);fx.globalCompositeOperation='source-over';return{image:full,mask}}
 async function build(){if(state.busy||!video.src||!dur())return toast(state.busy?'Temporal tracking is already running.':'Load or record a video first.');state.busy=true;const token=++state.token,saved=video.currentTime,playing=!video.paused;video.pause();try{const times=sampleTimes(),images=[];for(let i=0;i<times.length;i++){await seek(times[i]);images.push(await grab());const s=$('p2Status');if(s)s.textContent=`Tracking moving regions ${i+1}/${times.length} · ${fmt(times[i])}`;if(token!==state.token)throw new Error('cancelled')}const reference=images[Math.floor(images.length/2)];
  const aligned=[],shifts=[];
  for(let i=0;i<images.length;i++){
