@@ -37,33 +37,30 @@
 }
 
 
-/* CHRONOS safe layout fix: keep every original panel in normal document flow.
-   Temporal Coordinate System is in the left stack and matches the other cards. */
-.stack{display:flex!important;flex-direction:column!important;align-items:stretch!important;gap:8px!important;min-width:0!important;min-height:0!important;overflow:visible!important}
-.stack>.panel{position:relative!important;display:flex!important;flex:0 0 auto!important;flex-direction:column!important;width:100%!important;max-width:100%!important;height:clamp(170px,23vh,220px)!important;max-height:clamp(170px,23vh,220px)!important;min-height:0!important;min-width:0!important;overflow:hidden!important}
-.stack>.panel>.panel-head{flex:0 0 auto!important;min-width:0!important}
-.stack>.panel>.panel-body{flex:1 1 auto!important;min-width:0!important;min-height:0!important;max-height:none!important;overflow:auto!important;overflow-x:auto!important;overflow-y:auto!important;overscroll-behavior:contain!important;-webkit-overflow-scrolling:touch}
-.stack>.panel.timeline-panel{position:relative!important;inset:auto!important;justify-self:stretch!important;align-self:stretch!important;width:100%!important;max-width:100%!important;min-width:0!important;height:clamp(170px,23vh,220px)!important;max-height:clamp(170px,23vh,220px)!important;min-height:0!important;margin:0!important;flex:0 0 auto!important;overflow:hidden!important}
-.timeline-panel>.panel-head{padding:8px 9px!important}
-.timeline-panel>.panel-body{padding:8px 9px!important;overflow:auto!important}
-.timeline-panel .timeline{height:34px!important;margin:7px 0!important}
+/* CHRONOS compact independent panel layout — preserve the original grid and breakpoints. */
+.stack{position:relative;align-content:start;align-items:stretch;gap:8px;min-width:0}
+.stack>.panel{position:relative;display:flex;flex-direction:column;height:clamp(150px,19vh,180px);max-height:clamp(150px,19vh,180px);min-height:0;min-width:0;overflow:hidden}
+.stack>.panel>.panel-head{flex:0 0 auto;min-width:0;padding:8px 10px}
+.stack>.panel>.panel-body{flex:1 1 auto;min-height:0;min-width:0;overflow:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;scrollbar-width:thin;scrollbar-color:#28515d #08121a}
+.stack>.panel>.panel-body::-webkit-scrollbar{width:5px}
+.stack>.panel>.panel-body::-webkit-scrollbar-thumb{background:#28515d;border-radius:8px}
+.left-stack>.timeline-panel{width:100%;max-width:100%;height:clamp(150px,19vh,180px);max-height:clamp(150px,19vh,180px);min-height:0;justify-self:stretch;align-self:stretch;margin:0;display:flex;flex-direction:column}
+.left-stack>.timeline-panel>.panel-head{padding:8px 10px}
+.left-stack>.timeline-panel>.panel-body{padding:8px 10px;overflow:auto}
+.left-stack>.timeline-panel .panel-row{margin:1px 0 5px}
+.left-stack>.timeline-panel .timeline{height:27px;margin:5px 0}
+.left-stack>.timeline-panel .timeline-labels{font-size:8px}
 @media(max-width:1050px){
- .layout{grid-template-columns:minmax(190px,220px) minmax(0,1fr)!important;align-items:start!important}
- .left-stack{grid-column:1!important;grid-row:auto!important}
- .right-stack{grid-column:1/-1!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;align-items:stretch!important}
- .right-stack>.panel{width:100%!important;height:clamp(170px,23vh,220px)!important}
+ .right-stack{align-items:stretch}
+ .right-stack>.panel{height:clamp(150px,19vh,180px);max-height:clamp(150px,19vh,180px)}
 }
 @media(max-width:720px){
- .layout{grid-template-columns:minmax(0,1fr)!important}
- .center-column{grid-row:1!important}
- .left-stack,.right-stack{grid-column:1!important;grid-row:auto!important;display:flex!important;flex-direction:column!important;width:auto!important;max-height:none!important;position:static!important;overflow:visible!important}
- .stack>.panel,.stack>.panel.timeline-panel{width:100%!important;height:clamp(170px,26vh,220px)!important;max-height:clamp(170px,26vh,220px)!important}
- .timeline-panel .timeline{height:34px!important}
+ .stack>.panel,.left-stack>.timeline-panel{height:160px;max-height:160px}
+ .stack>.panel>.panel-head{padding:7px 8px}
+ .stack>.panel>.panel-body{padding:8px}
 }
-@media(max-width:430px){
- .stack>.panel,.stack>.panel.timeline-panel{height:190px!important;max-height:190px!important}
- .stack>.panel>.panel-head{padding:6px 7px!important}
- .stack>.panel>.panel-body{padding:6px!important}
+@media(max-width:460px){
+ .stack>.panel,.left-stack>.timeline-panel{height:155px;max-height:155px}
 }
 
 </style>
