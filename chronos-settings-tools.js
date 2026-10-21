@@ -11,6 +11,9 @@
   const modalBody=document.querySelector('#settingsModal .modal-body');
   if(!keyInput||!modalBody||$('saveKeyLocally')||$('testOpenRouterKey'))return;
 
+  const savedKey=localStorage.getItem('chronos-openrouter-key');
+  if(savedKey)keyInput.value=savedKey;
+
   const row=document.createElement('div');
   row.className='settings-key-tools';
   row.style.cssText='display:flex;gap:8px;flex-wrap:wrap;margin:-5px 0 14px';
@@ -31,6 +34,7 @@
 
   const readKey=()=>keyInput.value.trim();
   const setStatus=(message,ok=false)=>{status.textContent=message;status.style.color=ok?'#80f0b4':'#8298a8'};
+  if(savedKey)setStatus('Saved locally on this device.',true);
   const saveLocally=()=>{
     const key=readKey();
     if(!key){localStorage.removeItem('chronos-openrouter-key');setStatus('No key entered; local key cleared.');toast('OpenRouter key cleared from this browser.');return}
