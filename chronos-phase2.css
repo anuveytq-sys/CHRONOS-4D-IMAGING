@@ -1,0 +1,32 @@
+/* CHRONOS Phase 2 — Temporal Vision Engine presentation layer. */
+#chronosTemporalCanvas{position:absolute;inset:0;width:100%;height:100%;z-index:2;pointer-events:none;background:transparent}
+.chronos-phase2-panel .panel-body{display:grid;gap:6px}
+.chronos-phase2-panel .p2-section{border:1px solid #1b3440;border-radius:7px;padding:6px;background:#07121a}
+.chronos-phase2-panel .p2-section-title{font-size:8px;letter-spacing:.12em;text-transform:uppercase;color:var(--cyan);font-weight:800;margin-bottom:5px}
+.chronos-phase2-panel .p2-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px}
+.chronos-phase2-panel .p2-control{display:grid;gap:3px;min-width:0}
+.chronos-phase2-panel .p2-control label{font-size:8px;color:#8ea8b5}
+.chronos-phase2-panel input[type=number],.chronos-phase2-panel select{width:100%;background:#050b10;border:1px solid #29404b;border-radius:5px;padding:5px;color:#e8f8fb;outline:none;font-size:9px}
+.chronos-phase2-panel input[type=range]{width:100%;margin:2px 0}
+.chronos-phase2-panel .p2-actions{display:grid;grid-template-columns:1fr 1fr;gap:4px}
+.chronos-phase2-panel .p2-actions .btn{padding:5px 4px;font-size:8px}
+.chronos-phase2-panel .p2-effect-grid{display:grid;grid-template-columns:1fr 1fr;gap:4px}
+.chronos-phase2-panel .p2-effect{padding:5px 3px!important;font-size:7px!important}
+.chronos-phase2-panel .p2-effect.active{border-color:var(--cyan);background:#102a32;color:#e8ffff}
+.chronos-phase2-panel .p2-layer{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:4px;margin:4px 0}
+.chronos-phase2-panel .p2-layer span{font-size:7px;color:#a8bec9}
+.chronos-phase2-panel .p2-layer input[type=range]{grid-column:2 / 4}
+.chronos-phase2-panel .p2-status{font:7px ui-monospace,monospace;color:#7eaab2;line-height:1.35}
+.chronos-phase2-panel .p2-frame-list{max-height:70px;overflow:auto;display:grid;gap:3px}
+.chronos-phase2-panel .p2-frame{display:flex;align-items:center;gap:4px;font:7px ui-monospace,monospace;color:#9bb5c0}
+.chronos-phase2-panel .p2-frame button{padding:2px 4px;font-size:7px}
+.chronos-phase2-badge{display:inline-flex;align-items:center;gap:4px;font-size:7px;border:1px solid #28505b;border-radius:4px;padding:2px 4px;color:#83c7c7}
+@media(max-width:760px){
+ .chronos-phase2-panel .panel-body{gap:3px}
+ .chronos-phase2-panel .p2-section{padding:3px}
+ .chronos-phase2-panel .p2-section-title{font-size:5px;margin-bottom:3px}
+ .chronos-phase2-panel .p2-control label{font-size:5px}
+ .chronos-phase2-panel input[type=number],.chronos-phase2-panel select{padding:3px;font-size:6px}
+ .chronos-phase2-panel .p2-actions .btn,.chronos-phase2-panel .p2-effect{font-size:5px!important;padding:3px 2px!important}
+ .chronos-phase2-panel .p2-layer span,.chronos-phase2-panel .p2-status,.chronos-phase2-panel .p2-frame{font-size:5px}
+}
