@@ -26,3 +26,16 @@
 #screen.p4-selecting{cursor:crosshair;outline:2px solid var(--cyan);outline-offset:-3px}
 .chronos-phase4-panel.p4-highlight{border-color:var(--cyan);box-shadow:0 0 18px #62f4ed25}
 @media(max-width:760px){.chronos-phase4-panel{top:48px;right:6px;bottom:42px;width:min(360px,calc(100vw - 12px));max-width:calc(100vw - 12px)}.chronos-phase4-panel .p4-heading{font-size:8px}.chronos-phase4-panel .p4-note{font-size:7px}.chronos-phase4-panel .p4-row label,.chronos-phase4-panel .p4-label,.chronos-phase4-panel .p4-row strong{font-size:7px}.chronos-phase4-panel .p4-grid .btn,.chronos-phase4-panel .p4-row .btn{font-size:7px;padding:4px 3px}}
+
+
+/* Optional AI Futurecast video workflow. */
+.chronos-phase4-panel .p4-ai-section{border-color:#2c6970;background:linear-gradient(145deg,#0a1b24,#07121a)}
+.chronos-phase4-panel .p4-ai-label{display:block;font-size:8px;color:#9bb3bf;margin:5px 0 3px}
+.chronos-phase4-panel .p4-ai-direction{display:block;width:100%;min-width:0;resize:vertical;background:#050b10;border:1px solid #294651;border-radius:5px;padding:6px;color:#e8f8fb;font:8px/1.4 inherit;margin-bottom:5px}
+.chronos-phase4-panel .p4-ai-direction:focus{outline:1px solid var(--cyan);border-color:var(--cyan)}
+.chronos-phase4-panel .p4-ai-status{font-size:8px;line-height:1.45;color:#c5e7e8;background:#071018;border:1px solid #203d49;border-radius:5px;padding:6px;overflow-wrap:anywhere}
+.chronos-phase4-panel .p4-ai-video{display:block;width:100%;max-height:240px;margin-top:7px;background:#020407;border:1px solid #28505b;border-radius:6px}
+.chronos-phase4-panel .p4-ai-download{display:block;text-align:center;text-decoration:none;margin-top:5px;font-size:8px!important}
+.chronos-phase4-panel .p4-ai-download[hidden],.chronos-phase4-panel .p4-ai-video[hidden]{display:none}
+.chronos-phase4-panel .p4-ai-section #p4AiGenerate{border-color:#3d9695}
+@media(max-width:760px){.chronos-phase4-panel .p4-ai-label,.chronos-phase4-panel .p4-ai-status{font-size:7px}.chronos-phase4-panel .p4-ai-direction{font-size:7px;padding:5px}.chronos-phase4-panel .p4-ai-video{max-height:200px}}
