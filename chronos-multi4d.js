@@ -6,7 +6,8 @@ const $=id=>document.getElementById(id);
 if(!document.querySelector('link[data-chronos-multi4d-css]')){const css=document.createElement('link');css.rel='stylesheet';css.href='chronos-multi4d.css';css.dataset.chronosMulti4dCss='true';document.head.append(css)}
 const video=$('video');
 const layerPanel=[...document.querySelectorAll('.right-stack .panel')].find(p=>/Temporal layers/i.test(p.querySelector('.panel-title')?.textContent||''));
-if(!video||!layerPanel||$('multi4dPanel'))return;
+const layerBody=layerPanel?.querySelector('.panel-body');
+if(!video||!layerPanel||!layerBody||$('multi4dPanel'))return;
 const key=()=>localStorage.getItem('chronos-openrouter-key')||$('apiKey')?.value.trim()||'';
 const toast=message=>{const el=$('toast');if(el){el.textContent=message;el.classList.add('show');clearTimeout(toast.timer);toast.timer=setTimeout(()=>el.classList.remove('show'),3200)}};
 const panel=document.createElement('section');
@@ -26,7 +27,8 @@ panel.innerHTML=`
 <p class="multi4d-disclaimer">This is an AI-assisted visual reconstruction. Dates, location matches, and people/crowd comparisons can be uncertain; it does not prove simultaneous events or recreate a verified historical moment. Use only images you have permission to use.</p>
 </div>`;
 panel.style.order='999';
-layerPanel.appendChild(panel);
+panel.style.maxWidth='100%';
+layerBody.appendChild(panel);
 const status=m=>{const el=$('multi4dStatus');if(el)el.textContent=m};
 const dataURL=()=>{
  try{if(!video.videoWidth||!video.videoHeight)throw Error('Load a video and wait for a frame to appear first.');const c=document.createElement('canvas');c.width=Math.min(video.videoWidth,1024);c.height=Math.round(c.width*video.videoHeight/video.videoWidth);c.getContext('2d').drawImage(video,0,0,c.width,c.height);return c.toDataURL('image/jpeg',.78)}
