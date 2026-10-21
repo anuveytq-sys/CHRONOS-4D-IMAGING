@@ -30,3 +30,14 @@
  .chronos-phase2-panel .p2-actions .btn,.chronos-phase2-panel .p2-effect{font-size:5px!important;padding:3px 2px!important}
  .chronos-phase2-panel .p2-layer span,.chronos-phase2-panel .p2-status,.chronos-phase2-panel .p2-frame{font-size:5px}
 }
+
+/* Phase 2 inspection, annotation, and comparison controls. */
+.chronos-phase2-panel input[type="text"]{width:100%;min-width:0;background:#050b10;border:1px solid #29404b;border-radius:5px;padding:5px;color:#e8f8fb;outline:none;font-size:9px}
+.chronos-phase2-panel input[type="text"]:focus{border-color:var(--cyan)}
+.chronos-phase2-panel .p2-frame{min-width:0}
+.chronos-phase2-panel .p2-frame button:first-child{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:left}
+.chronos-phase2-panel .p2-frame button:not(:first-child){flex:0 0 auto}
+.chronos-phase2-panel .p2-effect:disabled,.chronos-phase2-panel .btn:disabled{opacity:.4;cursor:not-allowed}
+@media(max-width:760px){
+ .chronos-phase2-panel input[type="text"]{padding:3px;font-size:6px}
+}
