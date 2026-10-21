@@ -84,3 +84,32 @@ test('responsive viewport remains within the screen at desktop and mobile widths
     expect(metrics.screenWidth).toBeGreaterThan(0);
   }
 });
+
+test('Phase 3 time navigator, marker types, and multi-moment comparison initialize and work', async ({ page }) => {
+  const errors = [];
+  page.on('pageerror', error => errors.push(error.message));
+  await expect(page.locator('#chronosPhase3Panel')).toBeVisible();
+  await page.locator('#fileInput').setInputFiles({
+    name: 'chronos-test.webm',
+    mimeType: 'video/webm',
+    buffer: fs.readFileSync(fixture)
+  });
+  await expect.poll(() => page.locator('#video').evaluate(v => v.readyState)).toBeGreaterThanOrEqual(1);
+  await page.locator('#p3Timestamp').fill('00:00.500');
+  await page.locator('#p3Go').click();
+  await expect.poll(() => page.locator('#video').evaluate(v => v.currentTime)).toBeGreaterThan(0.35);
+
+  await page.locator('#p3Bookmark').click();
+  await expect(page.locator('#p3MarkerList')).toContainText('BOOKMARK');
+  await page.locator('#p3Note').fill('test annotation');
+  await page.locator('#p3Manual').click();
+  await expect(page.locator('#p3MarkerList')).toContainText('MANUAL');
+
+  await page.locator('#p3Capture').click();
+  await page.locator('#p3Next').click();
+  await page.locator('#p3Capture').click();
+  await expect(page.locator('#p3Moments .p3-moment')).toHaveCount(2);
+  await page.locator('#p3Compare').click();
+  await expect(page.locator('#p3CompareView .p3-compare-card')).toHaveCount(2);
+  expect(errors).toEqual([]);
+});
