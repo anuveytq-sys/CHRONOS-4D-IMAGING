@@ -11,8 +11,6 @@ const layerPanel=[...document.querySelectorAll('.right-stack .panel')].find(p=>/
 const layerBody=layerPanel?.querySelector('.panel-body');
 if(!video||!layerPanel||!layerBody)return;
 layerPanel.classList.add('chronos-temporal-layers-panel');
-const panelHead=layerPanel.querySelector('.panel-head');
-if(panelHead&&!$('chronosTemporalClose')){const close=document.createElement('button');close.id='chronosTemporalClose';close.type='button';close.className='chronos-temporal-close';close.textContent='×';close.setAttribute('aria-label','Hide Temporal Layers');close.title='Hide Temporal Layers';panelHead.appendChild(close)}
 const key=()=>localStorage.getItem('chronos-openrouter-key')||$('apiKey')?.value.trim()||'';
 const toast=message=>{const el=$('toast');if(el){el.textContent=message;el.classList.add('show');clearTimeout(toast.timer);toast.timer=setTimeout(()=>el.classList.remove('show'),3200)}};
 const panel=document.createElement('section');panel.id='multi4dPanel';panel.className='multi4d-panel';
@@ -28,9 +26,6 @@ panel.innerHTML=`
 <div class="multi4d-status" id="multi4dStatus" role="status" aria-live="polite">Ready · Choose a place photo or import one from web, then run the optional AI analysis.</div>
 <div id="multi4dResult" class="multi4d-result" hidden><div class="multi4d-place" id="multi4dPlace"></div><div class="multi4d-stage" id="multi4dStage" aria-label="AI-assisted temporal image comparison"></div><div class="multi4d-legend">SELECTED SOURCE + DATED WEB REFERENCES · ANIMATED TEMPORAL COMPARISON</div><div class="multi4d-sources" id="multi4dSources"></div><p class="multi4d-disclaimer">AI-assisted comparison only. Dates and place matches may be uncertain; this is not a verified 4D scan or proof of historical conditions. Use images you have permission to use.</p></div>`;
 panel.style.order='999';panel.style.maxWidth='100%';layerBody.appendChild(panel);
-const openBtn=document.createElement('button');openBtn.id='chronosTemporalLayersToggle';openBtn.type='button';openBtn.className='chronos-temporal-toggle';openBtn.textContent='◈ Temporal Layers';openBtn.setAttribute('aria-controls','multi4dPanel');openBtn.setAttribute('aria-expanded','true');document.body.appendChild(openBtn);
-function setOpen(open){layerPanel.classList.toggle('chronos-temporal-hidden',!open);openBtn.hidden=!!open;openBtn.setAttribute('aria-expanded',String(!!open));if(open&&matchMedia('(max-width:760px)').matches)layerPanel.classList.add('chronos-temporal-mobile-open');else layerPanel.classList.remove('chronos-temporal-mobile-open')}
-$('chronosTemporalClose').addEventListener('click',()=>setOpen(false));openBtn.addEventListener('click',()=>setOpen(true));
 const status=m=>{const el=$('multi4dStatus');if(el)el.textContent=m};
 let selectedSource=null;
 function showSource(src,label){selectedSource=src;$('multi4dPreview').src=src;$('multi4dPreviewWrap').hidden=false;$('multi4dSourceLabel').textContent=label||'Selected source image';status('Source selected. Add a hint if useful, then build the temporal comparison.')}
