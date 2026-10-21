@@ -47,6 +47,22 @@ const css=`
 #chronosM4TrailViewport .m4v-thumb{width:68px;height:48px;flex:0 0 auto;object-fit:cover;border:2px solid #294858;border-radius:4px;opacity:.55}
 #chronosM4TrailViewport .m4v-thumb.active{border-color:#62f4ed;opacity:1}
 #chronosM4TrailViewport .m4v-actions{display:flex;align-items:center;gap:6px;flex-wrap:wrap;flex:0 0 auto;margin-top:5px}
+
+#chronosM4TrailViewport .m4v-echo-grid{position:absolute;inset:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(28%,150px),1fr));grid-auto-rows:minmax(0,1fr);gap:clamp(3px,.7vw,9px);padding:clamp(4px,.8vw,10px);overflow:auto;align-content:stretch}
+#chronosM4TrailViewport .m4v-echo-tile{position:relative;min-width:0;min-height:90px;overflow:hidden;border:1px solid #367187;border-radius:7px;background:#04101a;box-shadow:0 0 12px #00d9ff16;opacity:.82;transform:translateZ(0);transition:opacity .45s ease,border-color .45s ease,box-shadow .45s ease}
+#chronosM4TrailViewport .m4v-echo-tile img{display:block;width:100%;height:100%;min-height:90px;object-fit:cover;filter:saturate(.9);animation:m4EchoDrift 7s ease-in-out infinite alternate;animation-delay:var(--echo-delay,0s)}
+#chronosM4TrailViewport .m4v-echo-tile:nth-child(3n) img{animation-duration:9s}
+#chronosM4TrailViewport .m4v-echo-tile:nth-child(4n) img{animation-duration:11s}
+#chronosM4TrailViewport .m4v-echo-tile::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,#00111a08 35%,#02070de8 100%);pointer-events:none}
+#chronosM4TrailViewport .m4v-echo-tile.active{opacity:1;border-color:#62f4ed;box-shadow:0 0 18px #62f4ed55}
+#chronosM4TrailViewport .m4v-echo-tile.active img{filter:saturate(1.2) brightness(1.08)}
+#chronosM4TrailViewport .m4v-echo-label{position:absolute;z-index:1;left:0;right:0;bottom:0;padding:5px;font-size:clamp(8px,.9vw,11px);line-height:1.3;color:#f0fbff;text-shadow:0 1px 3px #000;overflow-wrap:anywhere}
+#chronosM4TrailViewport .m4v-echo-date{display:block;color:#7ff6ef;font-weight:800;margin-bottom:2px}
+#chronosM4TrailViewport .m4v-caption{z-index:2;pointer-events:none}
+@keyframes m4EchoDrift{from{transform:scale(1) translate3d(-.6%,0,0)}to{transform:scale(1.06) translate3d(.6%,-.5%,0)}}
+@media(max-width:600px){#chronosM4TrailViewport .m4v-echo-grid{grid-template-columns:repeat(2,minmax(0,1fr))}#chronosM4TrailViewport .m4v-echo-tile{min-height:75px}#chronosM4TrailViewport .m4v-echo-tile img{min-height:75px}}
+@media(prefers-reduced-motion:reduce){#chronosM4TrailViewport .m4v-echo-tile img{animation:none}#chronosM4TrailViewport .m4v-echo-tile{transition:none}}
+
 #chronosM4TrailViewport .m4v-actions button{border:1px solid #387180;border-radius:6px;background:#0b1b27;color:#e9f5fa;padding:6px 10px;font-size:10px}
 #chronosM4TrailViewport .m4v-actions .m4v-close{margin-left:auto}
 @keyframes m4vImageIn{from{opacity:.35;transform:scale(1.015)}to{opacity:1;transform:scale(1)}}
@@ -82,7 +98,7 @@ const screen=$('screen');
 if(screen){screen.style.position=screen.style.position||'relative';}
 const trailViewport=document.createElement('section');
 trailViewport.id='chronosM4TrailViewport';trailViewport.hidden=true;
-trailViewport.innerHTML='<div class="m4v-head"><span>CHRONOS · MULTI 4D MOTION TRAIL</span><span id="m4vCounter">0 / 0</span></div><div class="m4v-sub" id="m4vPlace"></div><div class="m4v-image-wrap"><img class="m4v-image" id="m4vImage" alt="Historical image in motion trail"><div class="m4v-caption" id="m4vCaption"></div></div><div class="m4v-strip" id="m4vStrip"></div><div class="m4v-actions"><button type="button" id="m4vBack">◀ Previous</button><button type="button" id="m4vToggle">Ⅱ Pause</button><button type="button" id="m4vNext">Next ▶</button><button type="button" class="m4v-close" id="m4vClose">✕ Return to viewport</button></div>';
+trailViewport.innerHTML='<div class="m4v-head"><span>CHRONOS · MULTI 4D MOTION TRAIL</span><span id="m4vCounter">0 / 0</span></div><div class="m4v-sub" id="m4vPlace"></div><div class="m4v-image-wrap"><div class="m4v-echo-grid" id="m4vEchoGrid" aria-label="Simultaneous historical time echo"></div><div class="m4v-caption" id="m4vCaption"></div></div><div class="m4v-strip" id="m4vStrip"></div><div class="m4v-actions"><button type="button" id="m4vBack">◀ Previous</button><button type="button" id="m4vToggle">Ⅱ Pause</button><button type="button" id="m4vNext">Next ▶</button><button type="button" class="m4v-close" id="m4vClose">✕ Return to viewport</button></div>';
 if(screen)screen.append(trailViewport);
 let sourceData=null,sourceName='',items=[],timer=null,trailIndex=0,coordinates=null,trailSequence=[],trailPlaying=false;
 $('m4PhotoButton').onclick=()=>$('m4Photo').click();
@@ -104,9 +120,30 @@ async function locate(){const q=$('m4Place').value.trim();if(!q)return setStatus
 $('m4Locate').onclick=locate;
 async function aiIdentify(){const key=localStorage.getItem('chronos-openrouter-key')||$('apiKey')?.value.trim();if(!key)return setStatus('AI is optional. To use it, open Settings, enter an OpenRouter key, then choose Save Key Locally. Free archive search works without it.');if(!sourceData)return setStatus('Choose a place photo first to use AI identification.');const b=$('m4Identify');b.disabled=true;setStatus('Optional AI is identifying the image and searching the web…');try{const model=localStorage.getItem('chronos-vision-model-id')||$('visionModelId')?.value.trim()||'google/gemini-2.5-flash';const resp=await fetch('https://openrouter.ai/api/v1/chat/completions',{method:'POST',headers:{Authorization:'Bearer '+key,'Content-Type':'application/json','HTTP-Referer':location.href,'X-Title':'CHRONOS Multi 4D Timeline'},body:JSON.stringify({model,plugins:[{id:'web'}],messages:[{role:'user',content:[{type:'text',text:'Identify the likely famous place in this image. If confident, search the web for the place name and provide a concise answer with the likely place name only, plus uncertainty if ambiguous. Do not invent facts.'},{type:'image_url',image_url:{url:sourceData}}]}]})});const raw=await resp.text();let j;try{j=JSON.parse(raw)}catch(_){throw Error('AI provider returned unreadable data ('+resp.status+').')}if(!resp.ok)throw Error(j.error?.message||'AI provider request failed ('+resp.status+').');const answer=j.choices?.[0]?.message?.content;const textAnswer=typeof answer==='string'?answer:Array.isArray(answer)?answer.map(x=>x.text||'').join(' '):'';if(!textAnswer.trim())throw Error('AI returned no place name.');const place=textAnswer.replace(/\s+/g,' ').trim().slice(0,260);$('m4Place').value=place;setStatus('AI suggested: '+place+' · Review the name, then run free archive search. AI calls may consume provider credits.');await searchFree()}catch(e){setStatus('Optional AI failed: '+(e.message||String(e))+' · You can still enter the landmark name and use free archive search.')}finally{b.disabled=false}}
 $('m4Identify').onclick=aiIdentify;
-function showTrailFrame(index){if(!trailSequence.length)return;trailIndex=(index+trailSequence.length)%trailSequence.length;const item=trailSequence[trailIndex];const img=$('m4vImage');img.style.animation='none';void img.offsetWidth;img.style.animation='';img.src=item.url;img.alt=item.title||'Timeline image';$('m4vCaption').textContent=(item.source?'SOURCE PHOTO':item.date||'Date unknown')+' · '+(item.title||'Image');$('m4vCounter').textContent=(trailIndex+1)+' / '+trailSequence.length;$('m4vPlace').textContent=$('m4Place').value.trim()||'Historical place comparison';const strip=$('m4vStrip');[...strip.children].forEach((n,i)=>n.classList.toggle('active',i===trailIndex));const active=strip.children[trailIndex];if(active)active.scrollIntoView({block:'nearest',inline:'center',behavior:'smooth'});const cards=[...$('m4Stage').children];cards.forEach((c,i)=>{c.style.opacity=i===trailIndex?'1':'.4';c.style.borderColor=i===trailIndex?'#62f4ed':'#294858'})}
+function showTrailFrame(index){
+if(!trailSequence.length)return;
+trailIndex=(index+trailSequence.length)%trailSequence.length;
+const grid=$('m4vEchoGrid');
+if(!grid.children.length||grid.children.length!==trailSequence.length){
+grid.replaceChildren();
+trailSequence.forEach((item,i)=>{
+const tile=document.createElement('div');tile.className='m4v-echo-tile';tile.dataset.index=String(i);tile.style.setProperty('--echo-delay',(-i*.37)+'s');
+const im=document.createElement('img');im.src=item.url;im.alt=item.title||('Timeline image '+(i+1));im.loading=i<8?'eager':'lazy';
+const label=document.createElement('div');label.className='m4v-echo-label';
+const date=document.createElement('span');date.className='m4v-echo-date';date.textContent=item.source?'SOURCE PHOTO':(item.date||'Date unknown');
+const title=document.createElement('span');title.textContent=item.title||('Image '+(i+1));label.append(date,title);tile.append(im,label);grid.append(tile);
+});
+}
+[...grid.children].forEach((tile,i)=>tile.classList.toggle('active',i===trailIndex));
+$('m4vCaption').textContent='TIME ECHO · '+trailSequence.length+' timelines visible simultaneously · highlighted: '+(trailSequence[trailIndex].title||'Image '+(trailIndex+1));
+$('m4vCounter').textContent=trailSequence.length+' images · ALL IN VIEW';
+$('m4vPlace').textContent=($('m4Place').value.trim()||'Historical place comparison')+' · simultaneous multi-image time echo';
+[...$('m4vStrip').children].forEach((n,i)=>n.classList.toggle('active',i===trailIndex));
+const active=$('m4vStrip').children[trailIndex];if(active)active.scrollIntoView({block:'nearest',inline:'center',behavior:'smooth'});
+const cards=[...$('m4Stage').children];cards.forEach((card,i)=>{card.style.opacity=i===trailIndex?'1':'.75';card.style.borderColor=i===trailIndex?'#62f4ed':'#294858'});
+}
 function stopTrail(){if(timer)clearInterval(timer);timer=null;trailPlaying=false;const b=$('m4vToggle');if(b)b.textContent='▶ Play'}
-function playTrail(){stopTrail();if(trailSequence.length<1)return setStatus('Search for images or choose images from your device library first.');trailViewport.hidden=false;trailPlaying=true;$('m4vToggle').textContent='Ⅱ Pause';showTrailFrame(trailIndex);if(trailSequence.length>1)timer=setInterval(()=>showTrailFrame((trailIndex+1)%trailSequence.length),1900);setStatus('Playing the 4D image trail in the main Temporal Reality viewport. Use Pause or Return to viewport to exit.')}
+function playTrail(){stopTrail();if(!trailSequence.length)return setStatus('Search for images or choose images from your device library first.');trailViewport.hidden=false;trailPlaying=true;$('m4vToggle').textContent='Ⅱ Pause';showTrailFrame(trailIndex);if(trailSequence.length>1)timer=setInterval(()=>showTrailFrame((trailIndex+1)%trailSequence.length),2100);setStatus('Playing simultaneous TIME ECHO: every image remains visible together in the main viewport, with a moving highlight and subtle independent image motion.');}
 function closeTrail(){stopTrail();trailViewport.hidden=true}
 $('m4Play').onclick=()=>{trailSequence=makeTrailSequence();if(!trailSequence.length)return setStatus('Search for images or choose images from your device library first.');const strip=$('m4vStrip');strip.replaceChildren();trailSequence.forEach((item,i)=>{const im=document.createElement('img');im.className='m4v-thumb';im.src=item.url;im.alt=item.title||'Trail image '+(i+1);im.title=(item.date||'Date unknown')+' · '+(item.title||'Image');im.onclick=()=>{stopTrail();showTrailFrame(i);trailViewport.hidden=false};strip.append(im)});playTrail()};
 $('m4Pause').onclick=()=>{stopTrail();[...$('m4Stage').children].forEach(c=>{c.style.opacity='1';c.style.borderColor='#294858'});setStatus('Trail paused.')};
