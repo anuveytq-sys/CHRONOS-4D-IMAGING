@@ -64,24 +64,28 @@
 }
 
 
-/* Targeted usability adjustment: shorter right panels, larger timeline controls. */
+
+/* Correct the right-side fourth-panel sizing: compact the three panels above it
+   and give the bottom System Telemetry panel a larger, usable area. */
 @media(min-width:1051px){
- .layout{grid-template-columns:minmax(280px,300px) minmax(390px,1fr) minmax(220px,245px)}
- .right-stack>.panel{height:clamp(140px,16vh,160px);max-height:clamp(140px,16vh,160px)}
- .left-stack>.timeline-panel{height:clamp(210px,25vh,240px);max-height:clamp(210px,25vh,240px)}
+ .layout{grid-template-columns:minmax(280px,300px) minmax(390px,1fr) minmax(260px,300px)}
+ .right-stack>.panel{height:clamp(118px,14vh,145px);max-height:clamp(118px,14vh,145px)}
+ .right-stack>.panel:last-child{height:clamp(210px,27vh,255px);max-height:clamp(210px,27vh,255px)}
 }
 @media(min-width:1500px){
- .layout{grid-template-columns:300px minmax(500px,1fr) 250px}
+ .layout{grid-template-columns:300px minmax(500px,1fr) 300px}
 }
 @media(max-width:1050px){
- .right-stack>.panel{height:clamp(140px,16vh,160px);max-height:clamp(140px,16vh,160px)}
- .left-stack>.timeline-panel{height:200px;max-height:200px;width:100%;max-width:100%}
+ .right-stack>.panel{height:clamp(118px,14vh,145px);max-height:clamp(118px,14vh,145px)}
+ .right-stack>.panel:last-child{height:210px;max-height:210px}
 }
 @media(max-width:720px){
- .left-stack>.timeline-panel{height:190px;max-height:190px}
+ .right-stack>.panel{height:145px;max-height:145px}
+ .right-stack>.panel:last-child{height:200px;max-height:200px}
 }
 @media(max-width:460px){
- .left-stack>.timeline-panel{height:190px;max-height:190px}
+ .right-stack>.panel{height:140px;max-height:140px}
+ .right-stack>.panel:last-child{height:210px;max-height:210px}
 }
 
 </style>
