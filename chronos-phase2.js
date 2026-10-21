@@ -32,7 +32,8 @@ const state={
   savedTime:0,
   wasPlaying:false,
   measuredFrames:0,
-  measureStart:0
+  measureStart:0,
+  compareIndex:-1
 };
 
 function fmt(t){if(!Number.isFinite(t)||t<0)t=0;const m=Math.floor(t/60),s=Math.floor(t%60),ms=Math.floor((t%1)*1000);return String(m).padStart(2,'0')+':'+String(s).padStart(2,'0')+'.'+String(ms).padStart(3,'0')}
@@ -70,6 +71,7 @@ function addPanel(){
      <button class="btn p2-effect" data-p2-effect="freeze">Chrono Freeze</button>
      <button class="btn p2-effect" data-p2-effect="stack">Frame Stack</button>
      <button class="btn p2-effect" data-p2-effect="event">Event Highlighting</button>
+     <button class="btn p2-effect" data-p2-effect="compare">Frame Comparison</button>
     </div>
     <div class="p2-grid" style="margin-top:5px">
      <div class="p2-control"><label>Visual emphasis <span id="p2EmphasisValue">70%</span></label><input id="p2Emphasis" type="range" min="0" max="100" value="70"></div>
@@ -78,7 +80,9 @@ function addPanel(){
    </div>
    <div class="p2-section">
     <div class="p2-section-title">03 / Extracted frames <span class="chronos-phase2-badge">LOCAL</span></div>
-    <div class="p2-actions"><button class="btn" id="p2Extract">＋ Extract current frame</button><button class="btn" id="p2ExportFrames">⇩ Export frame</button></div>
+    <div class="p2-control" style="margin-bottom:5px"><label for="p2Annotation">Timestamp annotation (optional)</label><input id="p2Annotation" type="text" maxlength="120" placeholder="Describe this moment…"></div>
+     <div class="p2-actions"><button class="btn" id="p2Extract">＋ Extract current frame</button><button class="btn" id="p2ExportFrames">⇩ Export selected</button></div>
+     <div class="p2-actions" style="margin-top:4px"><button class="btn" id="p2ExportAll">⇩ Export all frames</button><button class="btn" id="p2CompareLast">◫ Compare last two</button></div>
     <div class="p2-frame-list" id="p2FrameList"><span class="p2-status">No extracted frames.</span></div>
    </div>
    <div class="p2-section">
@@ -95,6 +99,8 @@ function bindPanel(){
  $('p2Clear').onclick=()=>clearLayers();
  $('p2Extract').onclick=()=>extractCurrent();
  $('p2ExportFrames').onclick=()=>exportSelectedFrame();
+ $('p2ExportAll').onclick=()=>exportAllFrames();
+ $('p2CompareLast').onclick=()=>compareLastFrames();
  $('p2Samples').oninput=e=>{state.samples=clamp(Number(e.target.value)||8,2,32);if($('samples'))$('samples').value=state.samples;$('samplesValue').textContent=state.samples};
  $('p2Interval').oninput=e=>{state.interval=clamp(Number(e.target.value)||.25,.01,30)};
  $('p2Start').onchange=()=>syncRange();
@@ -159,15 +165,14 @@ async function buildFusion(){
  const n=clamp(Math.round(state.samples),2,32);
  const interval=Math.max(.01,state.interval);
  const times=[];
- for(let i=0;i<n;i++){
-  const t=Math.min(end,start+i*interval);
-  times.push(t);
-  if(t>=end)break;
- }
- if(times.length<2){return toast('Choose a larger temporal range or interval.');}
+ for(let t=start;t<end-0.001&&times.length<n;t=start+times.length*interval){times.push(Number(t.toFixed(3)));}
+ if(times.length<n&&(!times.length||end-times[times.length-1]>.001))times.push(Number(end.toFixed(3)));
+ else if(times.length>=n&&times.length>1)times[times.length-1]=Number(end.toFixed(3));
+ const uniqueTimes=[...new Set(times)].sort((a,b)=>a-b);
+ if(uniqueTimes.length<2){return toast('Choose a larger temporal range or interval.');}
  $('p2Build').disabled=true;
  try{
-  state.frames=await captureTimes(times);
+  state.frames=await captureTimes(uniqueTimes);
   state.layerOpacity=state.frames.map(()=>1);
   updateLayerUI();
   state.effect=state.effect||'fusion';
@@ -199,6 +204,7 @@ function render(){
  if(!state.frames.length||!video.src)return;
  const globalOpacity=(Number($('p2Opacity')?.value||65)/100);const emphasis=state.emphasis/100;
  if(state.effect==='stack'){renderStack(ctx,w,h,globalOpacity);return}
+ if(state.effect==='compare'){renderCompare(ctx,w,h,globalOpacity);return}
  const visible=state.frames.filter(f=>f.visible!==false);
  if(!visible.length)return;
  if(state.effect==='freeze'){
@@ -222,6 +228,15 @@ function render(){
   ctx.save();ctx.strokeStyle=`rgba(98,244,237,${.25+.65*emphasis})`;ctx.lineWidth=Math.max(1,1.5*devicePixelRatio);ctx.setLineDash([5*devicePixelRatio,5*devicePixelRatio]);ctx.strokeRect(w*.075,h*.075,w*.85,h*.85);ctx.restore();
  }
 }
+function renderCompare(ctx,w,h,opacity){
+ const selected=state.extracted[state.compareIndex]||state.extracted[state.extracted.length-1];
+ if(!selected){ctx.save();ctx.fillStyle='rgba(4,15,20,.9)';ctx.fillRect(0,0,w,h);ctx.fillStyle='#8ff7ef';ctx.font=`${12*devicePixelRatio}px ui-monospace,monospace`;ctx.fillText('EXTRACT AT LEAST ONE FRAME',w*.1,h*.5);ctx.restore();return}
+ const prior=state.extracted[state.compareIndex-1]||state.frames.reduce((best,f)=>!best||Math.abs(f.time-selected.time)<Math.abs(best.time-selected.time)?f:best,null);
+ if(!prior){drawFrame(ctx,selected.image,w,h,opacity);return}
+ ctx.save();ctx.beginPath();ctx.rect(0,0,w/2,h);ctx.clip();drawCover(ctx,prior.image,w,h);ctx.restore();
+ ctx.save();ctx.beginPath();ctx.rect(w/2,0,w/2,h);ctx.clip();drawCover(ctx,selected.image,w,h);ctx.restore();
+ ctx.save();ctx.fillStyle='rgba(2,8,12,.82)';ctx.fillRect(w*.03,h*.04,w*.44,22*devicePixelRatio);ctx.fillRect(w*.53,h*.04,w*.44,22*devicePixelRatio);ctx.fillStyle='#9cefea';ctx.font=`${9*devicePixelRatio}px ui-monospace,monospace`;ctx.fillText('REFERENCE · '+fmt(prior.time),w*.045,h*.04+14*devicePixelRatio);ctx.fillText('SELECTED · '+fmt(selected.time),w*.545,h*.04+14*devicePixelRatio);ctx.strokeStyle='#62f4ed';ctx.lineWidth=Math.max(1,devicePixelRatio);ctx.beginPath();ctx.moveTo(w/2,0);ctx.lineTo(w/2,h);ctx.stroke();ctx.restore();
+}
 function drawFrame(ctx,image,w,h,alpha){ctx.save();ctx.globalAlpha=clamp(alpha,0,1);drawCover(ctx,image,w,h);ctx.restore()}
 function renderStack(ctx,w,h,opacity){
  const frames=state.frames.filter(f=>f.visible!==false);if(!frames.length)return;const cols=Math.ceil(Math.sqrt(frames.length)),rows=Math.ceil(frames.length/cols);const gap=5*devicePixelRatio;const cw=(w-gap*(cols+1))/cols,ch=(h-gap*(rows+1))/rows;
@@ -232,12 +247,14 @@ function nearestFrame(t){let best=null,delta=Infinity;for(const f of state.frame
 async function extractCurrent(){
  if(!video.src)return toast('Load a recording first.');
  const saved=video.currentTime,playing=!video.paused;video.pause();
- try{const image=await bitmapFromCurrent();state.extracted.push({time:saved,image});updateExtractedUI();toast('Current decoded frame extracted locally.')}catch(e){toast('Frame extraction failed.')}finally{if(playing)video.play().catch(()=>{});}
+ try{const image=await bitmapFromCurrent();const annotation=$('p2Annotation')?.value.trim()||'';state.extracted.push({time:saved,image,annotation});state.compareIndex=state.extracted.length-1;if($('p2Annotation'))$('p2Annotation').value='';updateExtractedUI();toast('Current decoded frame extracted locally with timestamp annotation.')}catch(e){toast('Frame extraction failed.')}finally{if(playing)video.play().catch(()=>{});}
 }
 function updateExtractedUI(){
  const root=$('p2FrameList');if(!root)return;root.replaceChildren();if(!state.extracted.length){root.innerHTML='<span class="p2-status">No extracted frames.</span>';return}
- state.extracted.forEach((f,i)=>{const row=document.createElement('div');row.className='p2-frame';const b=document.createElement('button');b.className='btn';b.textContent='◆ '+fmt(f.time);b.onclick=()=>{video.currentTime=f.time;video.pause();render()};const rm=document.createElement('button');rm.className='btn';rm.textContent='×';rm.onclick=()=>{state.extracted.splice(i,1);updateExtractedUI()};row.append(b,rm);root.append(row)});
+ state.extracted.forEach((f,i)=>{const row=document.createElement('div');row.className='p2-frame';const b=document.createElement('button');b.className='btn';b.textContent='◆ '+fmt(f.time)+(f.annotation?' · '+f.annotation:'');b.title=f.annotation||('Jump to '+fmt(f.time));b.onclick=()=>{video.currentTime=f.time;video.pause();render()};const compare=document.createElement('button');compare.className='btn';compare.textContent='◫';compare.title='Compare this frame';compare.onclick=()=>{state.compareIndex=i;state.effect='compare';document.querySelectorAll('[data-p2-effect]').forEach(btn=>btn.classList.toggle('active',btn.dataset.p2Effect==='compare'));render()};const rm=document.createElement('button');rm.className='btn';rm.textContent='×';rm.title='Remove extracted frame';rm.onclick=()=>{state.extracted.splice(i,1);state.compareIndex=Math.min(state.compareIndex,state.extracted.length-1);updateExtractedUI();render()};row.append(b,compare,rm);root.append(row)});if($('p2CompareLast'))$('p2CompareLast').disabled=state.extracted.length<2;
 }
+function compareLastFrames(){if(state.extracted.length<2)return toast('Extract at least two frames to compare.');state.compareIndex=state.extracted.length-1;state.effect='compare';document.querySelectorAll('[data-p2-effect]').forEach(btn=>btn.classList.toggle('active',btn.dataset.p2Effect==='compare'));render();toast('Comparing the two most recently extracted frames.');}
+function exportAllFrames(){if(!state.extracted.length)return toast('Extract at least one frame first.');const payload=state.extracted.map((f,i)=>({index:i+1,timestampSeconds:f.time,timestamp:fmt(f.time),annotation:f.annotation||'',imageDataUrl:(()=>{const c=document.createElement('canvas');c.width=f.image.width||video.videoWidth||1280;c.height=f.image.height||video.videoHeight||720;c.getContext('2d').drawImage(f.image,0,0,c.width,c.height);return c.toDataURL('image/png')})()}));const blob=new Blob([JSON.stringify({application:'CHRONOS 4D IMAGING',exportedAt:new Date().toISOString(),frames:payload},null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='chronos-extracted-frames.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);toast('All extracted frames and timestamp annotations exported as JSON.');}
 function exportSelectedFrame(){
  const f=state.extracted[state.extracted.length-1];if(!f)return toast('Extract a frame first.');
  const c=document.createElement('canvas');c.width=f.image.width||video.videoWidth||1280;c.height=f.image.height||video.videoHeight||720;const x=c.getContext('2d');x.drawImage(f.image,0,0,c.width,c.height);const a=document.createElement('a');a.href=c.toDataURL('image/png');a.download='chronos-frame-'+fmt(f.time).replace(/[:.]/g,'-')+'.png';a.click();toast('Extracted frame exported as PNG.');
@@ -251,10 +268,10 @@ $('intensity').oninput=e=>{$('intensityValue').textContent=e.target.value+'%';do
 
 video.addEventListener('loadedmetadata',()=>{
  const d=duration();if($('p2End'))$('p2End').value=d.toFixed(2);state.start=0;state.end=d;
- const status=$('p2Status');if(status)status.textContent=`Source ready · ${video.videoWidth}×${video.videoHeight} · ${fmt(d)} duration · FPS shown when measurable.`;
+ const status=$('p2Status');if(status)status.textContent=`Source ready · ${video.videoWidth}×${video.videoHeight} · ${fmt(d)} duration · playback FPS is measured while playing.`;if($('fpsStat'))$('fpsStat').textContent='Play to measure';
  render();
 });
-video.addEventListener('timeupdate',()=>{if(state.effect==='freeze'||state.effect==='event')render()});
+video.addEventListener('timeupdate',()=>render());
 window.addEventListener('resize',()=>render());
 
 // Estimate FPS from decoded frames when the browser exposes requestVideoFrameCallback.
