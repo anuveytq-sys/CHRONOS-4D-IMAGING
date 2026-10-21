@@ -118,3 +118,40 @@
  .chronos-phase2-panel .p2-actions .btn,
  .chronos-phase2-panel .p2-effect{font-size:4.5px!important;padding:2px!important;min-height:16px}
 }
+
+/* CHRONOS requested right-side layout: remove the legacy System Telemetry slot
+   and let Temporal Vision occupy both that space and its former compact slot. */
+.right-stack>.panel:nth-child(3){display:none!important}
+.right-stack>.panel.chronos-phase2-panel:last-child{
+  height:clamp(520px,62vh,700px)!important;
+  max-height:clamp(520px,62vh,700px)!important;
+  min-height:520px!important;
+}
+.right-stack>.panel.chronos-phase2-panel:last-child>.panel-body{
+  overflow-y:auto;
+  overflow-x:hidden;
+  min-height:0;
+}
+@media(max-width:1050px){
+ .right-stack>.panel.chronos-phase2-panel:last-child{
+  grid-column:1/-1;
+  height:480px!important;
+  max-height:480px!important;
+  min-height:480px!important;
+ }
+}
+@media(max-width:720px){
+ .right-stack>.panel.chronos-phase2-panel:last-child{
+  grid-column:1/-1;
+  height:460px!important;
+  max-height:460px!important;
+  min-height:460px!important;
+ }
+}
+@media(max-width:460px){
+ .right-stack>.panel.chronos-phase2-panel:last-child{
+  height:440px!important;
+  max-height:440px!important;
+  min-height:440px!important;
+ }
+}
