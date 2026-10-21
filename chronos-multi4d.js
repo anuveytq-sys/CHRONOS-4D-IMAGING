@@ -3,6 +3,7 @@
    Results are AI-assisted reconstructions, not evidence of synchronized events. */
 (()=>{'use strict';
 const $=id=>document.getElementById(id);
+if(!document.querySelector('link[data-chronos-multi4d-css]')){const css=document.createElement('link');css.rel='stylesheet';css.href='chronos-multi4d.css';css.dataset.chronosMulti4dCss='true';document.head.append(css)}
 const video=$('video');
 const layerPanel=[...document.querySelectorAll('.right-stack .panel')].find(p=>/Temporal layers/i.test(p.querySelector('.panel-title')?.textContent||''));
 if(!video||!layerPanel||$('multi4dPanel'))return;
