@@ -56,8 +56,8 @@ function addPanel(){
     <div class="p2-grid">
      <div class="p2-control"><label for="p2Start">Range start (s)</label><input id="p2Start" type="number" min="0" step="0.01" value="0"></div>
      <div class="p2-control"><label for="p2End">Range end (s)</label><input id="p2End" type="number" min="0" step="0.01" value="0"></div>
-     <div class="p2-control"><label for="p2Samples">Samples</label><input id="p2Samples" type="number" min="2" max="32" step="1" value="8"></div>
-     <div class="p2-control"><label for="p2Interval">Interval (s)</label><input id="p2Interval" type="number" min="0.01" max="30" step="0.01" value="0.25"></div>
+     <div class="p2-control"><label for="p2Samples">Samples</label><input id="p2Samples" type="number" min="2" max="60" step="1" value="8"></div>
+     <div class="p2-control"><label for="p2Interval">Interval (s)</label><input id="p2Interval" type="number" min="0.10" max="30" step="0.01" value="0.25"></div>
     </div>
     <div class="p2-actions" style="margin-top:5px"><button class="btn primary" id="p2Build">◈ Build fusion</button><button class="btn" id="p2Clear">Clear layers</button></div>
     <div class="p2-status" id="p2Status">Load a recording to enable temporal sampling.</div>
@@ -105,8 +105,8 @@ function bindPanel(){
  $('p2ExportAll').onclick=()=>exportAllFrames();
  $('p2CompareLast').onclick=()=>compareLastFrames();
  $('p2OriginalToggle').onclick=()=>{state.showFusion=!state.showFusion;$('p2OriginalToggle').textContent=state.showFusion?'◉ Show original source':'◈ Show temporal fusion';render()};
- $('p2Samples').oninput=e=>{state.samples=clamp(Number(e.target.value)||8,2,32);if($('samples'))$('samples').value=state.samples;$('samplesValue').textContent=state.samples};
- $('p2Interval').oninput=e=>{state.interval=clamp(Number(e.target.value)||.25,.01,30)};
+ $('p2Samples').oninput=e=>{state.samples=clamp(Number(e.target.value)||8,2,60);if($('samples'))$('samples').value=state.samples;$('samplesValue').textContent=state.samples};
+ $('p2Interval').oninput=e=>{state.interval=clamp(Number(e.target.value)||.25,.10,30)};
  $('p2Start').onchange=()=>syncRange();
  $('p2End').onchange=()=>syncRange();
  $('p2Emphasis').oninput=e=>{state.emphasis=Number(e.target.value);$('p2EmphasisValue').textContent=state.emphasis+'%';render()};
@@ -136,9 +136,12 @@ function seek(t){
  });
 }
 async function bitmapFromCurrent(){
- const c=document.createElement('canvas');c.width=video.videoWidth||640;c.height=video.videoHeight||360;const x=c.getContext('2d',{willReadFrequently:false});x.drawImage(video,0,0,c.width,c.height);
+ // Bound preview-frame memory so 50–60 samples remain viable on mobile Safari.
+ const sw=video.videoWidth||640,sh=video.videoHeight||360,scale=Math.min(1,640/sw,360/sh);
+ const c=document.createElement('canvas');c.width=Math.max(1,Math.round(sw*scale));c.height=Math.max(1,Math.round(sh*scale));
+ const x=c.getContext('2d',{willReadFrequently:false});x.drawImage(video,0,0,c.width,c.height);
  if(window.createImageBitmap){try{return await createImageBitmap(c)}catch(e){}}
- const img=new Image();img.src=c.toDataURL('image/jpeg',.84);await img.decode();return img;
+ const img=new Image();img.src=c.toDataURL('image/jpeg',.82);await img.decode();return img;
 }
 async function captureTimes(times){
  if(!video.src||!duration())return [];
@@ -166,7 +169,7 @@ async function buildFusion(){
  const d=duration();
  let start=state.start,end=state.end;
  if(end<=start){end=d;state.end=end;$('p2End').value=end.toFixed(2)}
- const n=clamp(Math.round(state.samples),2,32);
+ const n=clamp(Math.round(state.samples),2,60);
  const interval=Math.max(.01,state.interval);
  const times=[];
  for(let t=start;t<end-0.001&&times.length<n;t=start+times.length*interval){times.push(Number(t.toFixed(3)));}
