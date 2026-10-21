@@ -51,7 +51,7 @@ jobs:
           html = page.read_text(encoding='utf-8')
           marker = '<!-- CHRONOS_IMMERSIVE_CSS -->'
           if marker not in html:
-              injection = marker + '<style id="chronos-immersive-css">\n' + css + '\n' + refinement + '\n' + phase2_css + '\n</style>'
+              injection = marker + '<style id="chronos-immersive-css">\n' + css + '\n' + refinement + '\n' + phase2_css + '\n' + phase3_css + '\n</style>'
               html = html.replace('</head>', injection + '</head>', 1)
           script_marker = '<!-- CHRONOS_PHASE2_ENGINE -->'
           if script_marker not in html and 'src="./chronos-phase2.js"' not in html and 'src="chronos-phase2.js"' not in html:
