@@ -48,12 +48,16 @@ const css=`
 #chronosM4TrailViewport .m4v-thumb.active{border-color:#62f4ed;opacity:1}
 #chronosM4TrailViewport .m4v-actions{display:flex;align-items:center;gap:6px;flex-wrap:wrap;flex:0 0 auto;margin-top:5px}
 
-#chronosM4TrailViewport .m4v-echo-grid{position:absolute;inset:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(28%,150px),1fr));grid-auto-rows:minmax(0,1fr);gap:clamp(3px,.7vw,9px);padding:clamp(4px,.8vw,10px);overflow:auto;align-content:stretch}
-#chronosM4TrailViewport .m4v-echo-tile{position:relative;min-width:0;min-height:90px;overflow:hidden;border:1px solid #367187;border-radius:7px;background:#04101a;box-shadow:0 0 12px #00d9ff16;opacity:.82;transform:translateZ(0);transition:opacity .45s ease,border-color .45s ease,box-shadow .45s ease}
-#chronosM4TrailViewport .m4v-echo-tile img{display:block;width:100%;height:100%;min-height:90px;object-fit:cover;filter:saturate(.9);animation:m4EchoDrift 7s ease-in-out infinite alternate;animation-delay:var(--echo-delay,0s)}
-#chronosM4TrailViewport .m4v-echo-tile:nth-child(3n) img{animation-duration:9s}
-#chronosM4TrailViewport .m4v-echo-tile:nth-child(4n) img{animation-duration:11s}
-#chronosM4TrailViewport .m4v-echo-tile::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,#00111a08 35%,#02070de8 100%);pointer-events:none}
+#chronosM4TrailViewport .m4-image-wrap{display:block;isolation:isolate}
+#chronosM4TrailViewport .m4v-echo-grid{position:absolute;inset:0;display:block;overflow:hidden;background:#02070d}
+#chronosM4TrailViewport .m4v-echo-tile{position:absolute;inset:-3%;overflow:hidden;background:#04101a;opacity:var(--echo-opacity,.25);mix-blend-mode:screen;transform:translate3d(var(--echo-x,0),var(--echo-y,0),0) scale(var(--echo-scale,1));transform-origin:center;transition:opacity .8s ease,filter .8s ease;will-change:transform,opacity}
+#chronosM4TrailViewport .m4v-echo-tile img{display:block;width:100%;height:100%;object-fit:cover;filter:saturate(.82) contrast(1.08);animation:m4EchoDrift 8s ease-in-out infinite alternate;animation-delay:var(--echo-delay,0s)}
+#chronosM4TrailViewport .m4v-echo-tile:nth-child(3n) img{animation-duration:10s}
+#chronosM4TrailViewport .m4v-echo-tile:nth-child(4n) img{animation-duration:12s}
+#chronosM4TrailViewport .m4v-echo-tile::after{content:"";position:absolute;inset:0;background:linear-gradient(135deg,#00eaff18,transparent 48%,#02070d44);pointer-events:none}
+#chronosM4TrailViewport .m4v-echo-tile.active{opacity:var(--echo-active-opacity,.48);filter:drop-shadow(0 0 12px #62f4ed66)}
+#chronosM4TrailViewport .m4v-echo-label{position:absolute;left:8px;bottom:8px;z-index:2;display:flex;flex-direction:column;gap:2px;padding:5px 7px;max-width:80%;background:#02070d99;border:1px solid #62f4ed55;border-radius:5px;color:#e9f5fa;font-size:clamp(8px,1vw,11px);opacity:.88;pointer-events:none}
+#chronosM4TrailViewport .m4v-echo-date{color:#7ff6ef;font-weight:800}
 #chronosM4TrailViewport .m4v-echo-tile.active{opacity:1;border-color:#62f4ed;box-shadow:0 0 18px #62f4ed55}
 #chronosM4TrailViewport .m4v-echo-tile.active img{filter:saturate(1.2) brightness(1.08)}
 #chronosM4TrailViewport .m4v-echo-label{position:absolute;z-index:1;left:0;right:0;bottom:0;padding:5px;font-size:clamp(8px,.9vw,11px);line-height:1.3;color:#f0fbff;text-shadow:0 1px 3px #000;overflow-wrap:anywhere}
@@ -126,24 +130,33 @@ trailIndex=(index+trailSequence.length)%trailSequence.length;
 const grid=$('m4vEchoGrid');
 if(!grid.children.length||grid.children.length!==trailSequence.length){
 grid.replaceChildren();
+const total=trailSequence.length;
 trailSequence.forEach((item,i)=>{
-const tile=document.createElement('div');tile.className='m4v-echo-tile';tile.dataset.index=String(i);tile.style.setProperty('--echo-delay',(-i*.37)+'s');
+const tile=document.createElement('div');tile.className='m4v-echo-tile';tile.dataset.index=String(i);
+const angle=(i/Math.max(1,total))*Math.PI*2;
+tile.style.setProperty('--echo-delay',(-i*.43)+'s');
+tile.style.setProperty('--echo-x',(Math.sin(angle)*1.8)+'%');
+tile.style.setProperty('--echo-y',(Math.cos(angle)*1.8)+'%');
+tile.style.setProperty('--echo-scale',String(1.025+(i%4)*.012));
+tile.style.setProperty('--echo-opacity',String(Math.max(.13,.31-(i%5)*.025)));
+tile.style.setProperty('--echo-active-opacity','.48');
+tile.style.zIndex=String(i+1);
 const im=document.createElement('img');im.src=item.url;im.alt=item.title||('Timeline image '+(i+1));im.loading=i<8?'eager':'lazy';
 const label=document.createElement('div');label.className='m4v-echo-label';
 const date=document.createElement('span');date.className='m4v-echo-date';date.textContent=item.source?'SOURCE PHOTO':(item.date||'Date unknown');
 const title=document.createElement('span');title.textContent=item.title||('Image '+(i+1));label.append(date,title);tile.append(im,label);grid.append(tile);
 });
 }
-[...grid.children].forEach((tile,i)=>tile.classList.toggle('active',i===trailIndex));
-$('m4vCaption').textContent='TIME ECHO · '+trailSequence.length+' timelines visible simultaneously · highlighted: '+(trailSequence[trailIndex].title||'Image '+(trailIndex+1));
-$('m4vCounter').textContent=trailSequence.length+' images · ALL IN VIEW';
-$('m4vPlace').textContent=($('m4Place').value.trim()||'Historical place comparison')+' · simultaneous multi-image time echo';
+[...grid.children].forEach((tile,i)=>{tile.classList.toggle('active',i===trailIndex);tile.style.setProperty('--echo-opacity',i===trailIndex?'.48':String(Math.max(.13,.31-(i%5)*.025)));});
+$('m4vCaption').textContent='TIME ECHO · '+trailSequence.length+' translucent timeline layers blended into one composite view · highlighted: '+(trailSequence[trailIndex].title||'Image '+(trailIndex+1));
+$('m4vCounter').textContent=trailSequence.length+' layers · ONE COMPOSITE VIEW';
+$('m4vPlace').textContent=($('m4Place').value.trim()||'Historical place comparison')+' · overlapping translucent motion trail';
 [...$('m4vStrip').children].forEach((n,i)=>n.classList.toggle('active',i===trailIndex));
 const active=$('m4vStrip').children[trailIndex];if(active)active.scrollIntoView({block:'nearest',inline:'center',behavior:'smooth'});
 const cards=[...$('m4Stage').children];cards.forEach((card,i)=>{card.style.opacity=i===trailIndex?'1':'.75';card.style.borderColor=i===trailIndex?'#62f4ed':'#294858'});
 }
 function stopTrail(){if(timer)clearInterval(timer);timer=null;trailPlaying=false;const b=$('m4vToggle');if(b)b.textContent='▶ Play'}
-function playTrail(){stopTrail();if(!trailSequence.length)return setStatus('Search for images or choose images from your device library first.');trailViewport.hidden=false;trailPlaying=true;$('m4vToggle').textContent='Ⅱ Pause';showTrailFrame(trailIndex);if(trailSequence.length>1)timer=setInterval(()=>showTrailFrame((trailIndex+1)%trailSequence.length),2100);setStatus('Playing simultaneous TIME ECHO: every image remains visible together in the main viewport, with a moving highlight and subtle independent image motion.');}
+function playTrail(){stopTrail();if(!trailSequence.length)return setStatus('Search for images or choose images from your device library first.');trailViewport.hidden=false;trailPlaying=true;$('m4vToggle').textContent='Ⅱ Pause';showTrailFrame(trailIndex);if(trailSequence.length>1)timer=setInterval(()=>showTrailFrame((trailIndex+1)%trailSequence.length),2100);setStatus('Playing TIME ECHO: all images are translucently overlapped as one composite motion-trail view.');}
 function closeTrail(){stopTrail();trailViewport.hidden=true}
 $('m4Play').onclick=()=>{trailSequence=makeTrailSequence();if(!trailSequence.length)return setStatus('Search for images or choose images from your device library first.');const strip=$('m4vStrip');strip.replaceChildren();trailSequence.forEach((item,i)=>{const im=document.createElement('img');im.className='m4v-thumb';im.src=item.url;im.alt=item.title||'Trail image '+(i+1);im.title=(item.date||'Date unknown')+' · '+(item.title||'Image');im.onclick=()=>{stopTrail();showTrailFrame(i);trailViewport.hidden=false};strip.append(im)});playTrail()};
 $('m4Pause').onclick=()=>{stopTrail();[...$('m4Stage').children].forEach(c=>{c.style.opacity='1';c.style.borderColor='#294858'});setStatus('Trail paused.')};
