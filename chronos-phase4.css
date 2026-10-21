@@ -1,5 +1,8 @@
 /* CHRONOS Phase 4 — isolated Futurecast and simulation panel; no Phase 1–3 rules changed. */
-.chronos-phase4-panel{display:none;position:fixed;z-index:35;top:62px;right:12px;bottom:62px;width:min(380px,calc(100vw - 24px));max-width:calc(100vw - 24px);min-width:0;max-height:none;height:auto;overflow:hidden;border-color:#25445a;box-shadow:0 20px 70px #000d;backdrop-filter:blur(14px)}\n.chronos-phase4-panel.p4-open{display:flex;flex-direction:column}\n.chronos-phase4-panel>.panel-head{flex:0 0 auto;min-width:0;gap:6px}\n.chronos-phase4-panel .p4-close{flex:0 0 auto;width:25px;height:25px;padding:0;font-size:10px}
+.chronos-phase4-panel{display:none;position:fixed;z-index:35;top:62px;right:12px;bottom:62px;width:min(380px,calc(100vw - 24px));max-width:calc(100vw - 24px);min-width:0;max-height:none;height:auto;overflow:hidden;border-color:#25445a;box-shadow:0 20px 70px #000d;backdrop-filter:blur(14px)}
+.chronos-phase4-panel.p4-open{display:flex;flex-direction:column}
+.chronos-phase4-panel>.panel-head{flex:0 0 auto;min-width:0;gap:6px}
+.chronos-phase4-panel .p4-close{flex:0 0 auto;width:25px;height:25px;padding:0;font-size:10px}
 .chronos-phase4-panel .p4-body{min-width:0;min-height:0;flex:1;overflow:auto!important;overflow-x:auto!important;overflow-y:auto!important;padding:7px;display:grid;gap:6px;align-content:start;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
 .chronos-phase4-panel .p4-section{border:1px solid #25445a;border-radius:7px;padding:7px;background:#07121a;min-width:0}
 .chronos-phase4-panel .p4-heading{font-size:9px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--cyan);margin-bottom:5px}
