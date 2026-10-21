@@ -60,38 +60,3 @@
  .stack>.panel>.panel-body{padding:3px}
  .timeline-panel{height:78px!important;max-height:78px!important}
 }
-
-
-/* CHRONOS recovery layout v4: restore panel access and place Temporal Coordinate System in the left stack. */
-.stack{display:grid!important;grid-template-columns:minmax(0,1fr)!important;align-content:start!important;align-items:stretch!important;gap:8px!important;min-width:0;min-height:0;max-height:calc(100vh - 190px)!important;overflow-x:hidden!important;overflow-y:auto!important;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:#28515d #08121a}
-.stack>.panel{display:flex!important;flex-direction:column!important;width:100%!important;max-width:none!important;height:clamp(190px,25vh,240px)!important;max-height:clamp(190px,25vh,240px)!important;min-height:0!important;flex:none!important;overflow:hidden!important;min-width:0}
-.stack>.panel>.panel-head{flex:0 0 auto!important;min-width:0!important;padding:8px 9px!important;gap:5px}
-.stack>.panel>.panel-title{min-width:0;overflow-wrap:anywhere}
-.stack>.panel>.panel-body{display:block!important;flex:1 1 auto!important;min-width:0!important;min-height:0!important;max-height:none!important;padding:8px 9px!important;overflow:auto!important;overflow-x:auto!important;overflow-y:auto!important;overscroll-behavior:contain!important;touch-action:pan-x pan-y;-webkit-overflow-scrolling:touch;scrollbar-width:thin}
-.stack>.panel>.panel-body>*{max-width:none}
-.stack>.panel .p2-grid,.stack>.panel .p2-actions{min-width:190px}
-.stack>.panel .p2-effect-grid{display:grid;grid-template-columns:repeat(2,minmax(82px,1fr));width:max-content;min-width:100%;max-width:none;gap:4px}
-.stack>.panel .p2-effect{white-space:nowrap}
-.left-stack>.timeline-panel{justify-self:stretch!important;width:100%!important;max-width:none!important;height:clamp(190px,25vh,240px)!important;max-height:clamp(190px,25vh,240px)!important;margin:0!important;display:flex!important;flex-direction:column!important}
-.left-stack>.timeline-panel>.panel-head{padding:8px 9px!important}
-.left-stack>.timeline-panel>.panel-body{padding:8px 9px!important;overflow:auto!important;overflow-x:auto!important;overflow-y:auto!important}
-.left-stack>.timeline-panel .timeline{height:34px;margin:7px 0}
-@media(max-width:1050px){
- .layout{grid-template-columns:minmax(190px,220px) minmax(0,1fr)!important;align-items:start}
- .left-stack{grid-column:1!important;grid-row:auto!important;max-height:calc(100vh - 170px)!important}
- .right-stack{grid-column:1/-1!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;max-height:none!important;overflow:visible!important}
- .right-stack>.panel{height:clamp(190px,25vh,240px)!important}
-}
-@media(max-width:720px){
- .layout{grid-template-columns:minmax(0,1fr)!important}
- .center-column{grid-row:1!important}
- .left-stack,.right-stack{grid-column:1!important;grid-row:auto!important;grid-template-columns:minmax(0,1fr)!important;width:auto!important;max-height:none!important;overflow:visible!important;overflow-x:visible!important;overflow-y:visible!important;position:static!important}
- .stack>.panel{height:clamp(170px,26vh,220px)!important;max-height:clamp(170px,26vh,220px)!important}
- .stack>.panel>.panel-head{padding:7px 8px!important}
- .stack>.panel>.panel-body{padding:7px 8px!important;overflow:auto!important;overflow-x:auto!important;overflow-y:auto!important}
- .stack>.panel .p2-effect-grid{grid-template-columns:repeat(2,minmax(72px,1fr));min-width:100%}
-}
-@media(max-width:430px){
- .stack>.panel{height:190px!important;max-height:190px!important}
- .stack>.panel>.panel-body{padding:6px!important}
-}
