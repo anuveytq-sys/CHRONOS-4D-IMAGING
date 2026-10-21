@@ -26,51 +26,19 @@ PHASE 4 — FUTURECAST & ALTERNATE TIMELINES
 
 Investigate what might happen next
 
-Goal: Add predictive analysis while clearly separating observed reality from simulated possibilities.
+Goal: Add predictive visualization while clearly separating observed reality from simulated possibilities.
 
-1. Motion analysis
+1. Motion analysis — implemented as an opt-in, browser-local heuristic tracker. The user selects a point on a paused frame; patch matching follows that region across sampled frames and reports image-coordinate trajectory and estimated velocity. Tracking can drift or fail under occlusion, camera movement, low contrast, or similar-looking regions. It is not a general-purpose object detector or verified scientific tracking.
 
-The system will analyze selected objects or movements when suitable tracking is available.
+2. Futurecast — implemented as a constant-velocity extrapolation from the sampled track. Users can choose a prediction horizon and view the observed path separately from the dashed predicted path. Uncertainty grows with the horizon; the current engine does not claim calibrated confidence or physical speed.
 
-Possible measurements include:
+3. Alternate timelines — implemented as 2D kinematic simulation branches from the tracked endpoint. Users can change the velocity multiplier and vertical acceleration, name up to six branches, select one branch or compare them, and inspect the assumptions recorded for each branch.
 
-* Position changes.
-* Movement direction.
-* Estimated velocity in image coordinates.
-* Trajectory history.
-* Changes in movement patterns.
+4. Simulation playback and checkpoints — implemented with play, pause, reset, adjustable simulation time, and reproducible in-session checkpoints that restore the saved branch parameters and simulation time.
 
-Physical speed estimates require additional information, such as camera calibration, scale, depth, or other appropriate measurements.
+Phase 4 deliverable: A local predictive visualization engine with heuristic movement tracking, plausible future trajectories, and branching simulations.
 
-2. Futurecast
-
-CHRONOS will use observed movement and suitable prediction models to estimate possible future trajectories.
-
-The interface can show:
-
-* The observed trajectory.
-* One or more predicted trajectories.
-* The prediction horizon.
-* Confidence or uncertainty information when supported by the model.
-* A comparison between predictions and subsequently observed movement.
-
-3. Alternate timelines
-
-Users will be able to create branches from a shared starting state in a supported simulation.
-
-For example, in a simulated environment, users could change an object’s initial velocity and compare the resulting trajectories.
-
-Each branch records the assumptions and parameters used.
-
-4. Simulation playback
-
-The user can play a supported simulation forward, pause it, adjust its parameters, and rerun it.
-
-Where the simulation supports reproducible state snapshots, users can return to earlier checkpoints.
-
-Phase 4 deliverable: A predictive visualization engine with tracked movement, plausible future trajectories, and branching simulations.
-
-Important limitation: Recorded past events can be revisited from available footage. Future events are predictions, and alternate outcomes are simulations—not real timelines that the application can access.
+Important limitation: Recorded past events can be revisited from available footage. Future events are predictions, and alternate outcomes are simulations—not real timelines that the application can access. Tracking, velocity, and forecasts are estimates, not scientific conclusions. The original video stays in the browser; no AI provider or external tracking service is called.
 
 ⸻
 
