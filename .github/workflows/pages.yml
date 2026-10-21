@@ -46,10 +46,12 @@ jobs:
           test -s chronos-multi4d.css
           test -s chronos-multi4d.js
           test -s chronos-motion-core.js
+          test -s chronos-motion-bind-cleanup.js
           node --check chronos-phase4.js
           node --check chronos-settings-tools.js
           node --check chronos-multi4d.js
           node --check chronos-motion-core.js
+          node --check chronos-motion-bind-cleanup.js
           echo "CHRONOS entry point and Phase 2–4 engines found"
           test -f .nojekyll || touch .nojekyll
           python3 - <<'PY'
@@ -87,6 +89,10 @@ jobs:
           motion_marker = '<!-- CHRONOS_MOTION_CORE -->'
           if motion_marker not in html and 'chronos-motion-core.js' not in html:
               script = motion_marker + '<script src="chronos-motion-core.js?v=20261021-motiononly1"></script>'
+              html = html.replace('</body>', script + '</body>', 1)
+          cleanup_marker = '<!-- CHRONOS_MOTION_BIND_CLEANUP -->'
+          if cleanup_marker not in html and 'chronos-motion-bind-cleanup.js' not in html:
+              script = cleanup_marker + '<script src="chronos-motion-bind-cleanup.js"></script>'
               html = html.replace('</body>', script + '</body>', 1)
           settings_marker = '<!-- CHRONOS_SETTINGS_TOOLS -->'
           if settings_marker not in html and 'src="./chronos-settings-tools.js"' not in html and 'src="chronos-settings-tools.js"' not in html:
