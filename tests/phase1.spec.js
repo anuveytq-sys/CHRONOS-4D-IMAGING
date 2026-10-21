@@ -89,7 +89,12 @@ test('Phase 3 time navigator, marker types, and multi-moment comparison initiali
   const errors = [];
   page.on('pageerror', error => errors.push(error.message));
   await expect(page.locator('#chronosPhase3Panel')).toBeVisible();
-  await expect(page.locator('.left-stack > .timeline-panel + #chronosPhase3Panel')).toBeVisible();
+  await expect(page.locator('.left-stack > #chronosPhase3Panel + .timeline-panel')).toBeVisible();
+  const coordinateBox = await page.locator('.left-stack > .timeline-panel').boundingBox();
+  const navigatorBox = await page.locator('#chronosPhase3Panel').boundingBox();
+  expect(coordinateBox).not.toBeNull();
+  expect(navigatorBox).not.toBeNull();
+  expect(coordinateBox.y).toBeGreaterThanOrEqual(navigatorBox.y + navigatorBox.height);
   const navigatorLayout = await page.locator('#chronosPhase3Panel .p3-note').first().evaluate(el => ({
     writingMode: getComputedStyle(el).writingMode,
     wordBreak: getComputedStyle(el).wordBreak
