@@ -53,3 +53,63 @@
  .chronos-phase3-panel .p3-moment{grid-template-columns:16px 40px minmax(0,1fr) auto}
  .chronos-phase3-panel .p3-moment img{width:40px;height:28px}
 }
+
+/* Mobile fit correction: keep Phase 3 in normal panel flow and make controls compact. */
+.chronos-phase3-panel{
+  width:100%;
+  max-width:100%;
+  min-width:0;
+  box-sizing:border-box;
+  position:relative;
+  height:clamp(460px,58vh,620px)!important;
+  max-height:clamp(460px,58vh,620px)!important;
+  overflow:hidden;
+}
+.chronos-phase3-panel .panel-head{min-width:0;gap:5px;padding:9px 10px}
+.chronos-phase3-panel .panel-title{font-size:9px;letter-spacing:.09em;min-width:0}
+.chronos-phase3-panel .panel-code{font-size:8px;white-space:nowrap}
+.chronos-phase3-panel .p3-body{width:100%;min-width:0;max-width:100%;padding:6px;gap:5px}
+.chronos-phase3-panel .p3-section{padding:6px;min-width:0;max-width:100%}
+.chronos-phase3-panel .p3-row{flex-wrap:wrap;gap:4px}
+.chronos-phase3-panel .p3-row .btn,
+.chronos-phase3-panel .p3-grid .btn,
+.chronos-phase3-panel .p3-compare-card .btn{
+  font-size:8px!important;
+  line-height:1.2;
+  padding:5px 4px!important;
+  min-width:0;
+  overflow-wrap:anywhere;
+}
+.chronos-phase3-panel .p3-heading{font-size:9px;letter-spacing:.08em}
+.chronos-phase3-panel .p3-note{font-size:8px;line-height:1.35}
+.chronos-phase3-panel .p3-row input[type=text],
+.chronos-phase3-panel input[type=text],
+.chronos-phase3-panel select{font-size:9px;padding:5px;min-width:0}
+.chronos-phase3-panel .p3-marker-go,
+.chronos-phase3-panel .p3-moment-info{font-size:8px!important;padding:4px!important}
+.chronos-phase3-panel .p3-remove{font-size:9px!important;padding:3px 5px!important}
+.chronos-phase3-panel .p3-list,
+.chronos-phase3-panel .p3-moments{min-width:0;max-width:100%}
+@media(max-width:720px){
+  .chronos-phase3-panel{
+    width:100%;
+    height:clamp(480px,64vh,620px)!important;
+    max-height:clamp(480px,64vh,620px)!important;
+  }
+  .chronos-phase3-panel .p3-row .btn,
+  .chronos-phase3-panel .p3-grid .btn{font-size:8px!important;padding:5px 4px!important}
+  .chronos-phase3-panel .p3-note{font-size:8px}
+}
+@media(max-width:460px){
+  .chronos-phase3-panel{
+    width:100%;
+    height:clamp(500px,68vh,620px)!important;
+    max-height:clamp(500px,68vh,620px)!important;
+  }
+  .chronos-phase3-panel .panel-head{padding:8px}
+  .chronos-phase3-panel .p3-body{padding:5px;gap:5px}
+  .chronos-phase3-panel .p3-section{padding:5px}
+  .chronos-phase3-panel .p3-grid{gap:4px}
+  .chronos-phase3-panel .p3-row .btn,
+  .chronos-phase3-panel .p3-grid .btn{font-size:7.5px!important;padding:4px 3px!important}
+}
