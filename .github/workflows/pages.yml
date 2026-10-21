@@ -94,7 +94,7 @@ jobs:
               html = html.replace('</body>', settings_marker + '<script src="chronos-settings-tools.js"></script></body>', 1)
           temporal_scroll_marker = '<!-- CHRONOS_TEMPORAL_VISION_SCROLL -->'
           if temporal_scroll_marker not in html and 'chronos-temporal-vision-scroll.js' not in html:
-              html = html.replace('</body>', temporal_scroll_marker + '<script src="chronos-temporal-vision-scroll.js?v=20261021-scrollfix3"></script></body>', 1)
+              html = html.replace('</body>', temporal_scroll_marker + '<script src="chronos-temporal-vision-scroll.js?v=20261021-expanded-panel4"></script></body>', 1)
           page.write_text(html, encoding='utf-8')
           print('CHRONOS responsive CSS, Phase 2–4 assets, Multi 4D Timeline, Motion Core, Settings tools, and Temporal Vision scrolling prepared for deployment.')
           PY
