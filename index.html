@@ -36,40 +36,6 @@
  .timeline-panel{max-height:154px}
 }
 
-
-/* CHRONOS recovery layout v4: preserve every panel, keep compact independent viewports, and expose the full stacks. */
-.stack{display:grid!important;grid-template-columns:minmax(0,1fr)!important;align-content:start!important;align-items:stretch!important;gap:8px!important;min-width:0;min-height:0;max-height:calc(100vh - 190px)!important;overflow-x:hidden!important;overflow-y:auto!important;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:#28515d #08121a}
-.stack>.panel{display:flex!important;flex-direction:column!important;width:100%!important;max-width:none!important;height:clamp(190px,25vh,240px)!important;max-height:clamp(190px,25vh,240px)!important;min-height:0!important;flex:none!important;overflow:hidden!important;min-width:0}
-.stack>.panel>.panel-head{flex:0 0 auto!important;min-width:0!important;padding:8px 9px!important;gap:5px}
-.stack>.panel>.panel-title{min-width:0;overflow-wrap:anywhere}
-.stack>.panel>.panel-body{display:block!important;flex:1 1 auto!important;min-width:0!important;min-height:0!important;max-height:none!important;padding:8px 9px!important;overflow:auto!important;overflow-x:auto!important;overflow-y:auto!important;overscroll-behavior:contain!important;touch-action:pan-x pan-y;-webkit-overflow-scrolling:touch;scrollbar-width:thin}
-.stack>.panel>.panel-body>*{max-width:none}
-.stack>.panel .p2-grid,.stack>.panel .p2-actions{min-width:190px}
-.stack>.panel .p2-effect-grid{display:grid;grid-template-columns:repeat(2,minmax(82px,1fr));width:max-content;min-width:100%;max-width:none;gap:4px}
-.stack>.panel .p2-effect{white-space:nowrap}
-.left-stack>.timeline-panel{justify-self:stretch!important;width:100%!important;max-width:none!important;height:clamp(190px,25vh,240px)!important;max-height:clamp(190px,25vh,240px)!important;margin:0!important;display:flex!important;flex-direction:column!important}
-.left-stack>.timeline-panel>.panel-head{padding:8px 9px!important}
-.left-stack>.timeline-panel>.panel-body{padding:8px 9px!important;overflow:auto!important;overflow-x:auto!important;overflow-y:auto!important}
-.left-stack>.timeline-panel .timeline{height:34px;margin:7px 0}
-@media(max-width:1050px){
- .layout{grid-template-columns:minmax(190px,220px) minmax(0,1fr)!important;align-items:start}
- .left-stack{grid-column:1!important;grid-row:auto!important;max-height:calc(100vh - 170px)!important}
- .right-stack{grid-column:1/-1!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;max-height:none!important;overflow:visible!important}
- .right-stack>.panel{height:clamp(190px,25vh,240px)!important}
-}
-@media(max-width:720px){
- .layout{grid-template-columns:minmax(0,1fr)!important}
- .center-column{grid-row:1!important}
- .left-stack,.right-stack{grid-column:1!important;grid-row:auto!important;grid-template-columns:minmax(0,1fr)!important;width:auto!important;max-height:none!important;overflow:visible!important;overflow-x:visible!important;overflow-y:visible!important}
- .stack>.panel{height:clamp(170px,26vh,220px)!important;max-height:clamp(170px,26vh,220px)!important}
- .stack>.panel>.panel-head{padding:7px 8px!important}
- .stack>.panel>.panel-body{padding:7px 8px!important}
- .stack>.panel .p2-effect-grid{grid-template-columns:repeat(2,minmax(72px,1fr));min-width:100%}
-}
-@media(max-width:430px){
- .stack>.panel{height:190px!important;max-height:190px!important}
- .stack>.panel>.panel-body{padding:6px!important}
-}
 </style>
 </head>
 <body>
@@ -92,7 +58,6 @@
  <button class="nav-item" id="resetBtn"><span class="nav-icon">↺</span><span><span class="nav-label">Reset workspace</span><span class="nav-desc">Clear current session media</span></span></button>
  </div></section>
  <section class="panel"><div class="panel-head"><span class="panel-title">Session telemetry</span><span class="panel-code">LIVE</span></div><div class="panel-body"><div class="stat-grid"><div class="stat"><strong id="durationStat">00:00</strong><span>Duration</span></div><div class="stat"><strong id="fpsStat">—</strong><span>Source FPS</span></div><div class="stat"><strong id="frameStat">0000</strong><span>Frame index*</span></div><div class="stat"><strong id="resolutionStat">—</strong><span>Resolution</span></div></div><div class="divider"></div><div class="panel-row"><span class="label">Media status</span><span class="value" id="mediaStatus">STANDBY</span></div><div class="meter"><i id="mediaMeter"></i></div><p class="small muted">*Frame index is an estimate until the source frame rate is known.</p></div></section>
-<section class="panel timeline-panel"><div class="panel-head"><span class="panel-title">Temporal coordinate system</span><span class="panel-code" id="timelineStatus">NO SOURCE</span></div><div class="panel-body"><div class="panel-row"><span class="label">Recorded timeline</span><span class="value" id="timelinePercent">0.0%</span></div><div class="timeline"><div class="timeline-track"></div><div class="timeline-progress" id="timelineProgress"></div><input id="timeline" type="range" min="0" max="1000" value="0" aria-label="Navigate video timeline" disabled></div><div class="timeline-labels"><span>T− START</span><span id="midTime">T+ 00:00</span><span>T+ END</span></div></div></section>
 </aside>
 <main class="center-column">
  <section class="screen-shell">
@@ -104,7 +69,7 @@
  </div>
  <div class="screen-toolbar"><div class="toolbar-group"><button class="icon-btn" id="backBtn" title="Back 1 second">↶</button><button class="icon-btn" id="playBtn" title="Play or pause">▶</button><button class="icon-btn" id="forwardBtn" title="Forward 1 second">↷</button><button class="icon-btn" id="stepBackBtn" title="Previous frame">|◂</button><button class="icon-btn" id="stepForwardBtn" title="Next frame">▸|</button></div><div class="timecode"><span id="currentTime">00:00.000</span> <small>/</small> <span id="totalTime">00:00.000</span></div><div class="toolbar-group"><select id="speedSelect" class="icon-btn" aria-label="Playback speed"><option value=".25">0.25×</option><option value=".5">0.5×</option><option value="1" selected>1×</option><option value="1.5">1.5×</option><option value="2">2×</option></select><button class="icon-btn" id="muteBtn" title="Mute or unmute">♪</button></div></div>
  </section>
- 
+ <section class="panel timeline-panel"><div class="panel-head"><span class="panel-title">Temporal coordinate system</span><span class="panel-code" id="timelineStatus">NO SOURCE</span></div><div class="panel-body"><div class="panel-row"><span class="label">Recorded timeline</span><span class="value" id="timelinePercent">0.0%</span></div><div class="timeline"><div class="timeline-track"></div><div class="timeline-progress" id="timelineProgress"></div><input id="timeline" type="range" min="0" max="1000" value="0" aria-label="Navigate video timeline" disabled></div><div class="timeline-labels"><span>T− START</span><span id="midTime">T+ 00:00</span><span>T+ END</span></div></div></section>
 </main>
 <aside class="stack right-stack">
  <section class="panel"><div class="panel-head"><span class="panel-title">Temporal layers</span><span class="panel-code">02 / LYR</span></div><div class="panel-body"><p class="small muted" style="margin-top:0">Control visual layers in the observation viewport. Analysis layers activate as their engines are implemented.</p>
