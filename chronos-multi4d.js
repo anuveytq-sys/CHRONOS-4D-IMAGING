@@ -11,11 +11,13 @@ const layerPanel=[...document.querySelectorAll('.right-stack .panel')].find(p=>/
 const layerBody=layerPanel?.querySelector('.panel-body');
 if(!video||!layerPanel||!layerBody)return;
 layerPanel.classList.add('chronos-temporal-layers-panel');
+const panelHead=layerPanel.querySelector('.panel-head');
+if(panelHead&&!$('chronosTemporalClose')){const close=document.createElement('button');close.id='chronosTemporalClose';close.type='button';close.className='chronos-temporal-close';close.textContent='×';close.setAttribute('aria-label','Hide Temporal Layers');close.title='Hide Temporal Layers';panelHead.appendChild(close)}
 const key=()=>localStorage.getItem('chronos-openrouter-key')||$('apiKey')?.value.trim()||'';
 const toast=message=>{const el=$('toast');if(el){el.textContent=message;el.classList.add('show');clearTimeout(toast.timer);toast.timer=setTimeout(()=>el.classList.remove('show'),3200)}};
 const panel=document.createElement('section');panel.id='multi4dPanel';panel.className='multi4d-panel';
 panel.innerHTML=`
-<div class="multi4d-heading"><span>◈ MULTI 4D TIMELINE</span><span class="multi4d-head-actions"><span class="multi4d-badge">OPTIONAL AI</span><button type="button" id="multi4dClose" class="multi4d-close" aria-label="Hide Temporal Layers panel" title="Hide panel">×</button></span></div>
+<div class="multi4d-heading"><span>◈ MULTI 4D TIMELINE</span><span class="multi4d-badge">OPTIONAL AI</span></div>
 <p class="multi4d-note">Choose a photo, import an image URL, or search the web. AI will identify the place and find dated references for a temporal comparison.</p>
 <div class="multi4d-source-actions"><button type="button" class="btn" id="multi4dChoosePhoto">📷 Take / choose photo</button><input id="multi4dPhotoFile" type="file" accept="image/*" capture="environment" hidden><div class="multi4d-url-row"><input id="multi4dImageUrl" class="multi4d-input" type="url" placeholder="Paste direct image URL"><button type="button" class="btn" id="multi4dImportUrl">Import</button></div></div>
 <div id="multi4dPreviewWrap" class="multi4d-preview-wrap" hidden><img id="multi4dPreview" alt="Selected place image"><div><span id="multi4dSourceLabel">Selected image</span><button type="button" class="btn" id="multi4dRemoveSource">Remove</button></div></div>
@@ -28,7 +30,7 @@ panel.innerHTML=`
 panel.style.order='999';panel.style.maxWidth='100%';layerBody.appendChild(panel);
 const openBtn=document.createElement('button');openBtn.id='chronosTemporalLayersToggle';openBtn.type='button';openBtn.className='chronos-temporal-toggle';openBtn.textContent='◈ Temporal Layers';openBtn.setAttribute('aria-controls','multi4dPanel');openBtn.setAttribute('aria-expanded','true');document.body.appendChild(openBtn);
 function setOpen(open){layerPanel.classList.toggle('chronos-temporal-hidden',!open);openBtn.hidden=!!open;openBtn.setAttribute('aria-expanded',String(!!open));if(open&&matchMedia('(max-width:760px)').matches)layerPanel.classList.add('chronos-temporal-mobile-open');else layerPanel.classList.remove('chronos-temporal-mobile-open')}
-$('multi4dClose').addEventListener('click',()=>setOpen(false));openBtn.addEventListener('click',()=>setOpen(true));
+$('chronosTemporalClose').addEventListener('click',()=>setOpen(false));openBtn.addEventListener('click',()=>setOpen(true));
 const status=m=>{const el=$('multi4dStatus');if(el)el.textContent=m};
 let selectedSource=null;
 function showSource(src,label){selectedSource=src;$('multi4dPreview').src=src;$('multi4dPreviewWrap').hidden=false;$('multi4dSourceLabel').textContent=label||'Selected source image';status('Source selected. Add a hint if useful, then build the temporal comparison.')}
