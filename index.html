@@ -65,30 +65,38 @@
 
 
 
-/* Correct the right-side fourth-panel sizing: compact the three panels above it
-   and give the bottom System Telemetry panel a larger, usable area. */
+/* Right-side panel sizing and reliable touch scrolling.
+   Keep the two upper panels compact and give the bottom System Telemetry panel
+   more room. Preserve all markup and application behavior. */
+.right-stack{min-width:0;align-content:start;align-items:stretch}
+.right-stack>.panel{display:flex;flex-direction:column;min-width:0;min-height:0;overflow:hidden}
+.right-stack>.panel>.panel-head{flex:0 0 auto;min-width:0}
+.right-stack>.panel>.panel-body{flex:1 1 auto;min-height:0;min-width:0;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;touch-action:pan-y;scrollbar-width:thin;scrollbar-color:#28515d #08121a}
+.right-stack>.panel>.panel-body::-webkit-scrollbar{width:6px}
+.right-stack>.panel>.panel-body::-webkit-scrollbar-thumb{background:#28515d;border-radius:8px}
 @media(min-width:1051px){
- .layout{grid-template-columns:minmax(280px,300px) minmax(390px,1fr) minmax(260px,300px)}
- .right-stack>.panel{height:clamp(118px,14vh,145px);max-height:clamp(118px,14vh,145px)}
- .right-stack>.panel:last-child{height:clamp(210px,27vh,255px);max-height:clamp(210px,27vh,255px)}
+ .layout{grid-template-columns:minmax(280px,300px) minmax(320px,1fr) minmax(300px,320px)}
+ .right-stack>.panel{height:clamp(150px,17vh,175px);max-height:clamp(150px,17vh,175px)}
+ .right-stack>.panel:last-child{height:clamp(300px,36vh,360px);max-height:clamp(300px,36vh,360px)}
 }
 @media(min-width:1500px){
- .layout{grid-template-columns:300px minmax(500px,1fr) 300px}
+ .layout{grid-template-columns:300px minmax(500px,1fr) 320px}
 }
 @media(max-width:1050px){
- .right-stack>.panel{height:clamp(118px,14vh,145px);max-height:clamp(118px,14vh,145px)}
- .right-stack>.panel:last-child{height:210px;max-height:210px}
+ .right-stack{grid-column:1/-1;grid-template-columns:repeat(3,minmax(0,1fr))}
+ .right-stack>.panel{height:150px;max-height:150px}
+ .right-stack>.panel:last-child{height:260px;max-height:260px}
 }
 @media(max-width:720px){
- .right-stack>.panel{height:145px;max-height:145px}
- .right-stack>.panel:last-child{height:200px;max-height:200px}
+ .right-stack{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .right-stack>.panel{height:160px;max-height:160px}
+ .right-stack>.panel:last-child{height:240px;max-height:240px}
 }
 @media(max-width:460px){
- .right-stack>.panel{height:140px;max-height:140px}
- .right-stack>.panel:last-child{height:210px;max-height:210px}
-}
-
-</style>
+ .right-stack{grid-template-columns:minmax(0,1fr)}
+ .right-stack>.panel{height:155px;max-height:155px}
+ .right-stack>.panel:last-child{height:250px;max-height:250px}
+}</style>
 </head>
 <body>
 <div class="app">
