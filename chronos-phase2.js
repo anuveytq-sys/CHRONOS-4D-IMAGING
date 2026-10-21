@@ -33,7 +33,8 @@ const state={
   wasPlaying:false,
   measuredFrames:0,
   measureStart:0,
-  compareIndex:-1
+  compareIndex:-1,
+  showFusion:true
 };
 
 function fmt(t){if(!Number.isFinite(t)||t<0)t=0;const m=Math.floor(t/60),s=Math.floor(t%60),ms=Math.floor((t%1)*1000);return String(m).padStart(2,'0')+':'+String(s).padStart(2,'0')+'.'+String(ms).padStart(3,'0')}
@@ -79,6 +80,7 @@ function addPanel(){
     </div>
    </div>
    <div class="p2-section">
+    <button class="btn" id="p2OriginalToggle" style="width:100%;margin-top:5px">◉ Show original source</button>
     <div class="p2-section-title">03 / Extracted frames <span class="chronos-phase2-badge">LOCAL</span></div>
     <div class="p2-control" style="margin-bottom:5px"><label for="p2Annotation">Timestamp annotation (optional)</label><input id="p2Annotation" type="text" maxlength="120" placeholder="Describe this moment…"></div>
      <div class="p2-actions"><button class="btn" id="p2Extract">＋ Extract current frame</button><button class="btn" id="p2ExportFrames">⇩ Export selected</button></div>
@@ -101,6 +103,7 @@ function bindPanel(){
  $('p2ExportFrames').onclick=()=>exportSelectedFrame();
  $('p2ExportAll').onclick=()=>exportAllFrames();
  $('p2CompareLast').onclick=()=>compareLastFrames();
+ $('p2OriginalToggle').onclick=()=>{state.showFusion=!state.showFusion;$('p2OriginalToggle').textContent=state.showFusion?'◉ Show original source':'◈ Show temporal fusion';render()};
  $('p2Samples').oninput=e=>{state.samples=clamp(Number(e.target.value)||8,2,32);if($('samples'))$('samples').value=state.samples;$('samplesValue').textContent=state.samples};
  $('p2Interval').oninput=e=>{state.interval=clamp(Number(e.target.value)||.25,.01,30)};
  $('p2Start').onchange=()=>syncRange();
@@ -172,7 +175,7 @@ async function buildFusion(){
  if(uniqueTimes.length<2){return toast('Choose a larger temporal range or interval.');}
  $('p2Build').disabled=true;
  try{
-  state.frames=await captureTimes(uniqueTimes);
+  state.frames=analyzeEvents(await captureTimes(uniqueTimes));
   state.layerOpacity=state.frames.map(()=>1);
   updateLayerUI();
   state.effect=state.effect||'fusion';
@@ -199,9 +202,16 @@ function updateLayerUI(){
  });
 }
 
+function analyzeEvents(frames){
+ let previous=null;const scores=[];
+ for(const frame of frames){const c=document.createElement('canvas');c.width=24;c.height=24;const x=c.getContext('2d',{willReadFrequently:true});x.drawImage(frame.image,0,0,24,24);const pixels=x.getImageData(0,0,24,24).data;let score=0;if(previous){for(let i=0;i<pixels.length;i+=4)score+=(Math.abs(pixels[i]-previous[i])+Math.abs(pixels[i+1]-previous[i+1])+Math.abs(pixels[i+2]-previous[i+2]))/(3*255*576)}frame.eventScore=score;scores.push(score);previous=pixels}
+ const sorted=scores.filter(v=>v>0).sort((a,b)=>a-b);const threshold=sorted.length?sorted[Math.floor((sorted.length-1)*.75)]:Infinity;frames.forEach(f=>{if(f.eventScore<threshold)f.eventScore=0});return frames;
+}
 function render(){
  const canvas=ensureCanvas(),ctx=canvas.getContext('2d');const {w,h}=canvasSize(canvas);ctx.clearRect(0,0,w,h);
- if(!state.frames.length||!video.src)return;
+ if(!video.src)return;
+ if(!state.frames.length&&state.effect!=='compare')return;
+ if(!state.showFusion){const originalCanvas=ensureCanvas();const originalCtx=originalCanvas.getContext('2d');const size=canvasSize(originalCanvas);originalCtx.clearRect(0,0,size.w,size.h);return}
  const globalOpacity=(Number($('p2Opacity')?.value||65)/100);const emphasis=state.emphasis/100;
  if(state.effect==='stack'){renderStack(ctx,w,h,globalOpacity);return}
  if(state.effect==='compare'){renderCompare(ctx,w,h,globalOpacity);return}
@@ -211,8 +221,8 @@ function render(){
   const selected=nearestFrame(video.currentTime);if(selected)drawFrame(ctx,selected.image,w,h,Math.max(.2,emphasis));return;
  }
  if(state.effect==='event'){
-  const selected=nearestFrame(video.currentTime);if(selected)drawFrame(ctx,selected.image,w,h,Math.max(.25,emphasis));
-  ctx.save();ctx.strokeStyle='rgba(98,244,237,.95)';ctx.lineWidth=Math.max(2,2*devicePixelRatio);ctx.strokeRect(w*.075,h*.075,w*.85,h*.85);ctx.fillStyle='rgba(4,15,20,.82)';ctx.fillRect(w*.075,h*.075,Math.min(w*.36,250*devicePixelRatio),24*devicePixelRatio);ctx.fillStyle='#8ff7ef';ctx.font=`${10*devicePixelRatio}px ui-monospace,monospace`;ctx.fillText('EVENT HIGHLIGHT · '+fmt(video.currentTime),w*.09,h*.075+16*devicePixelRatio);ctx.restore();return;
+  const events=visible.filter(f=>f.eventScore>0);const selected=(events.length?events:visible).reduce((best,f)=>!best||Math.abs(f.time-video.currentTime)<Math.abs(best.time-video.currentTime)?f:best,null);if(selected)drawFrame(ctx,selected.image,w,h,Math.max(.25,emphasis));
+  ctx.save();ctx.strokeStyle='rgba(98,244,237,.95)';ctx.lineWidth=Math.max(2,2*devicePixelRatio);ctx.strokeRect(w*.075,h*.075,w*.85,h*.85);ctx.fillStyle='rgba(4,15,20,.82)';ctx.fillRect(w*.075,h*.075,Math.min(w*.36,250*devicePixelRatio),24*devicePixelRatio);ctx.fillStyle='#8ff7ef';ctx.font=`${10*devicePixelRatio}px ui-monospace,monospace`;ctx.fillText('MOTION EVENT Δ '+(selected?(selected.eventScore*100).toFixed(1)+'%':'—')+' · '+(selected?fmt(selected.time):fmt(video.currentTime)),w*.09,h*.075+16*devicePixelRatio);ctx.restore();return;
  }
  const count=visible.length;
  visible.forEach((f,i)=>{
@@ -220,7 +230,7 @@ function render(){
   if(state.effect==='echo')alpha*=.65+(.35*(i+1)/count);
   if(state.effect==='ghost')alpha*=.75;
   if(state.effect==='trail')alpha*=((i+1)/count);
-  const emph=Math.abs(f.time-video.currentTime)<.02?emphasis:1;
+  const emph=f===nearestFrame(video.currentTime)?emphasis:1;
   drawFrame(ctx,f.image,w,h,Math.min(1,alpha*(.35+.65*emph)));
  });
  // Selected/current moment emphasis marker.
