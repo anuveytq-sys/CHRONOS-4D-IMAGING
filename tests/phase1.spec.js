@@ -92,12 +92,12 @@ test('Phase 3 time navigator, marker types, and multi-moment comparison initiali
   await expect(page.locator('.left-stack > .timeline-panel + #chronosPhase3Panel')).toBeVisible();
   const navigatorLayout = await page.locator('#chronosPhase3Panel .p3-note').first().evaluate(el => ({
     writingMode: getComputedStyle(el).writingMode,
-    wordBreak: getComputedStyle(el).wordBreak,
-    width: el.getBoundingClientRect().width
+    wordBreak: getComputedStyle(el).wordBreak
   }));
+  const sectionWidth = await page.locator('#chronosPhase3Panel .p3-section').first().evaluate(el => el.getBoundingClientRect().width);
   expect(navigatorLayout.writingMode).toBe('horizontal-tb');
   expect(navigatorLayout.wordBreak).toBe('normal');
-  expect(navigatorLayout.width).toBeGreaterThan(150);
+  expect(sectionWidth).toBeGreaterThan(150);
   await page.locator('#fileInput').setInputFiles({
     name: 'chronos-test.webm',
     mimeType: 'video/webm',
