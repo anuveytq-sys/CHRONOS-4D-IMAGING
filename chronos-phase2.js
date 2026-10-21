@@ -74,6 +74,7 @@ function addPanel(){
      <button class="btn p2-effect" data-p2-effect="event">Event Highlighting</button>
      <button class="btn p2-effect" data-p2-effect="compare">Frame Comparison</button>
     </div>
+    <div class="p2-effect-description" id="p2EffectDescription" aria-live="polite">Blend sampled moments into one temporal view.</div>
     <div class="p2-grid" style="margin-top:5px">
      <div class="p2-control"><label>Visual emphasis <span id="p2EmphasisValue">70%</span></label><input id="p2Emphasis" type="range" min="0" max="100" value="70"></div>
      <div class="p2-control"><label>Layer opacity <span id="p2OpacityValue">65%</span></label><input id="p2Opacity" type="range" min="0" max="100" value="65"></div>
@@ -110,7 +111,7 @@ function bindPanel(){
  $('p2End').onchange=()=>syncRange();
  $('p2Emphasis').oninput=e=>{state.emphasis=Number(e.target.value);$('p2EmphasisValue').textContent=state.emphasis+'%';render()};
  $('p2Opacity').oninput=e=>{$('p2OpacityValue').textContent=e.target.value+'%';render()};
- document.querySelectorAll('[data-p2-effect]').forEach(btn=>btn.onclick=()=>{state.effect=btn.dataset.p2Effect;document.querySelectorAll('[data-p2-effect]').forEach(b=>b.classList.toggle('active',b===btn));if(state.effect==='freeze'&&video.src)video.pause();render()});
+ document.querySelectorAll('[data-p2-effect]').forEach(btn=>btn.onclick=async()=>{state.effect=btn.dataset.p2Effect;document.querySelectorAll('[data-p2-effect]').forEach(b=>b.classList.toggle('active',b===btn));updateEffectDescription();if(state.effect==='freeze'&&video.src)video.pause();if(state.effect!=='compare'&&!state.frames.length){if(!video.src){toast('Load a recording first, then choose an effect.');return}await buildFusion();return}render()});
 }
 
 function ensureCanvas(){
@@ -178,7 +179,7 @@ async function buildFusion(){
   state.frames=analyzeEvents(await captureTimes(uniqueTimes));
   state.layerOpacity=state.frames.map(()=>1);
   updateLayerUI();
-  state.effect=state.effect||'fusion';
+  updateEffectDescription();
   render();
   if($('p2Status'))$('p2Status').textContent=`${state.frames.length} real decoded frames composed · range ${fmt(start)} → ${fmt(end)}`;
   $('temporalChip').textContent='TEMPORAL LAYERS: '+state.frames.length;
@@ -207,35 +208,76 @@ function analyzeEvents(frames){
  for(const frame of frames){const c=document.createElement('canvas');c.width=24;c.height=24;const x=c.getContext('2d',{willReadFrequently:true});x.drawImage(frame.image,0,0,24,24);const pixels=x.getImageData(0,0,24,24).data;let score=0;if(previous){for(let i=0;i<pixels.length;i+=4)score+=(Math.abs(pixels[i]-previous[i])+Math.abs(pixels[i+1]-previous[i+1])+Math.abs(pixels[i+2]-previous[i+2]))/(3*255*576)}frame.eventScore=score;scores.push(score);previous=pixels}
  const sorted=scores.filter(v=>v>0).sort((a,b)=>a-b);const threshold=sorted.length?sorted[Math.floor((sorted.length-1)*.75)]:Infinity;frames.forEach(f=>{if(f.eventScore<threshold)f.eventScore=0});return frames;
 }
+function updateEffectDescription(){
+ const descriptions={
+  fusion:'Temporal Fusion — blends sampled moments into a single composite view.',
+  echo:'Time Echo — layers earlier and later moments with a fading temporal offset.',
+  ghost:'Temporal Ghosting — overlays translucent, desaturated silhouettes from sampled moments.',
+  trail:'Motion Trails — accumulates earlier moments with a brightening trail toward the current time.',
+  freeze:'Chrono Freeze — holds the nearest sampled moment while playback is paused.',
+  stack:'Frame Stack — arranges each sampled moment into a timestamped contact sheet.',
+  event:'Event Highlighting — selects the strongest detected frame-to-frame visual change.',
+  compare:'Frame Comparison — compares two extracted moments side by side.'
+ };
+ const el=$('p2EffectDescription');if(el)el.textContent=descriptions[state.effect]||descriptions.fusion;
+}
 function render(){
  const canvas=ensureCanvas(),ctx=canvas.getContext('2d');const {w,h}=canvasSize(canvas);ctx.clearRect(0,0,w,h);
  if(!video.src)return;
+ if(!state.showFusion)return;
  if(!state.frames.length&&state.effect!=='compare')return;
- if(!state.showFusion){const originalCanvas=ensureCanvas();const originalCtx=originalCanvas.getContext('2d');const size=canvasSize(originalCanvas);originalCtx.clearRect(0,0,size.w,size.h);return}
- const globalOpacity=(Number($('p2Opacity')?.value||65)/100);const emphasis=state.emphasis/100;
- if(state.effect==='stack'){renderStack(ctx,w,h,globalOpacity);return}
- if(state.effect==='compare'){renderCompare(ctx,w,h,globalOpacity);return}
+ const opacity=Number($('p2Opacity')?.value??65)/100;
+ const emphasis=state.emphasis/100;
+ if(state.effect==='stack'){renderStack(ctx,w,h,opacity);return}
+ if(state.effect==='compare'){renderCompare(ctx,w,h,opacity);return}
  const visible=state.frames.filter(f=>f.visible!==false);
  if(!visible.length)return;
+ const current=nearestFrame(video.currentTime);
  if(state.effect==='freeze'){
-  const selected=nearestFrame(video.currentTime);if(selected)drawFrame(ctx,selected.image,w,h,Math.max(.2,emphasis));return;
+  if(current)drawFrame(ctx,current.image,w,h,Math.max(.35,emphasis));
+  return;
  }
  if(state.effect==='event'){
-  const events=visible.filter(f=>f.eventScore>0);const selected=(events.length?events:visible).reduce((best,f)=>!best||Math.abs(f.time-video.currentTime)<Math.abs(best.time-video.currentTime)?f:best,null);if(selected)drawFrame(ctx,selected.image,w,h,Math.max(.25,emphasis));
-  ctx.save();ctx.strokeStyle='rgba(98,244,237,.95)';ctx.lineWidth=Math.max(2,2*devicePixelRatio);ctx.strokeRect(w*.075,h*.075,w*.85,h*.85);ctx.fillStyle='rgba(4,15,20,.82)';ctx.fillRect(w*.075,h*.075,Math.min(w*.36,250*devicePixelRatio),24*devicePixelRatio);ctx.fillStyle='#8ff7ef';ctx.font=`${10*devicePixelRatio}px ui-monospace,monospace`;ctx.fillText('MOTION EVENT Δ '+(selected?(selected.eventScore*100).toFixed(1)+'%':'—')+' · '+(selected?fmt(selected.time):fmt(video.currentTime)),w*.09,h*.075+16*devicePixelRatio);ctx.restore();return;
+  const events=visible.filter(f=>f.eventScore>0);
+  const selected=(events.length?events:visible).reduce((best,f)=>!best||Math.abs(f.time-video.currentTime)<Math.abs(best.time-video.currentTime)?f:best,null);
+  if(selected)drawFrame(ctx,selected.image,w,h,Math.max(.45,emphasis));
+  ctx.save();ctx.strokeStyle='rgba(98,244,237,.98)';ctx.lineWidth=Math.max(2,2*devicePixelRatio);ctx.strokeRect(w*.055,h*.055,w*.89,h*.89);
+  ctx.fillStyle='rgba(4,15,20,.88)';ctx.fillRect(w*.06,h*.06,Math.min(w*.58,340*devicePixelRatio),27*devicePixelRatio);
+  ctx.fillStyle='#8ff7ef';ctx.font=`${11*devicePixelRatio}px ui-monospace,monospace`;
+  ctx.fillText('VISUAL CHANGE Δ '+(selected?(selected.eventScore*100).toFixed(1)+'%':'—')+' · '+(selected?fmt(selected.time):fmt(video.currentTime)),w*.075,h*.06+18*devicePixelRatio);ctx.restore();return;
  }
- const count=visible.length;
- visible.forEach((f,i)=>{
-  let alpha=globalOpacity/count;
-  if(state.effect==='echo')alpha*=.65+(.35*(i+1)/count);
-  if(state.effect==='ghost')alpha*=.75;
-  if(state.effect==='trail')alpha*=((i+1)/count);
-  const emph=f===nearestFrame(video.currentTime)?emphasis:1;
-  drawFrame(ctx,f.image,w,h,Math.min(1,alpha*(.35+.65*emph)));
- });
- // Selected/current moment emphasis marker.
- const nearest=nearestFrame(video.currentTime);if(nearest&&state.effect!=='ghost'){
-  ctx.save();ctx.strokeStyle=`rgba(98,244,237,${.25+.65*emphasis})`;ctx.lineWidth=Math.max(1,1.5*devicePixelRatio);ctx.setLineDash([5*devicePixelRatio,5*devicePixelRatio]);ctx.strokeRect(w*.075,h*.075,w*.85,h*.85);ctx.restore();
+ const sorted=[...visible].sort((a,b)=>a.time-b.time);
+ if(state.effect==='fusion'){
+  sorted.forEach(f=>{
+   const layer=state.layerOpacity[state.frames.indexOf(f)]??1;
+   const near=f===current?(.55+.45*emphasis):1;
+   drawFrame(ctx,f.image,w,h,Math.min(.82,opacity*layer/Math.max(1,sorted.length)*1.8*near));
+  });
+ }else if(state.effect==='echo'){
+  sorted.forEach(f=>{
+   const distance=Math.abs(f.time-video.currentTime);
+   const recency=1/(1+distance*1.8);
+   const direction=f.time<video.currentTime?-1:1;
+   const offset=Math.min(w*.035,distance*w*.018)*direction;
+   ctx.save();ctx.globalCompositeOperation='screen';ctx.globalAlpha=clamp(opacity*(.14+.48*recency)*(state.layerOpacity[state.frames.indexOf(f)]??1),0,.72);
+   const sw=f.image.videoWidth||f.image.width||w,sh=f.image.videoHeight||f.image.height||h;const scale=Math.min(w/sw,h/sh),dw=sw*scale,dh=sh*scale;
+   ctx.drawImage(f.image,(w-dw)/2+offset,(h-dh)/2,dw,dh);ctx.restore();
+  });
+ }else if(state.effect==='ghost'){
+  sorted.forEach(f=>{
+   const distance=Math.abs(f.time-video.currentTime),layer=state.layerOpacity[state.frames.indexOf(f)]??1;
+   ctx.save();ctx.filter='grayscale(1) contrast(1.12)';ctx.globalCompositeOperation='screen';
+   ctx.globalAlpha=clamp(opacity*(f===current?.62:.2/(1+distance))*layer,0,.7);
+   drawCover(ctx,f.image,w,h);ctx.restore();
+  });
+  if(current){ctx.save();ctx.strokeStyle='rgba(98,244,237,.75)';ctx.lineWidth=Math.max(1,devicePixelRatio);ctx.setLineDash([4*devicePixelRatio,4*devicePixelRatio]);ctx.strokeRect(w*.06,h*.06,w*.88,h*.88);ctx.restore()}
+ }else if(state.effect==='trail'){
+  sorted.filter(f=>f.time<=video.currentTime+0.001).forEach(f=>{
+   const age=Math.max(0,video.currentTime-f.time),layer=state.layerOpacity[state.frames.indexOf(f)]??1;
+   ctx.save();ctx.globalCompositeOperation='lighter';ctx.globalAlpha=clamp(opacity*(.08+.34/(1+age*1.7))*layer,0,.42);
+   ctx.filter='saturate(1.25) contrast(1.08)';drawCover(ctx,f.image,w,h);ctx.restore();
+  });
+  if(current)drawFrame(ctx,current.image,w,h,clamp(.12+emphasis*.22,0,.38));
  }
 }
 function renderCompare(ctx,w,h,opacity){
@@ -281,7 +323,7 @@ video.addEventListener('loadedmetadata',()=>{
  const status=$('p2Status');if(status)status.textContent=`Source ready · ${video.videoWidth}×${video.videoHeight} · ${fmt(d)} duration · playback FPS is measured while playing.`;if($('fpsStat'))$('fpsStat').textContent='Play to measure';
  render();
 });
-video.addEventListener('timeupdate',()=>render());
+video.addEventListener('timeupdate',()=>{if(state.effect!=='freeze')render()});
 window.addEventListener('resize',()=>render());
 
 // Estimate FPS from decoded frames when the browser exposes requestVideoFrameCallback.
