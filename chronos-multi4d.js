@@ -5,7 +5,7 @@
 const $=id=>document.getElementById(id);
 if(window.__chronosMulti4dInstalled)return;
 window.__chronosMulti4dInstalled=true;
-if(!document.querySelector('link[data-chronos-multi4d-css]')){const css=document.createElement('link');css.rel='stylesheet';css.href='chronos-multi4d.css';css.dataset.chronosMulti4dCss='true';document.head.append(css)}
+if(!document.querySelector('link[data-chronos-multi4d-css]')){const css=document.createElement('link');css.rel='stylesheet';css.href='chronos-multi4d.css?v=20261021-scrollfix1';css.dataset.chronosMulti4dCss='true';document.head.append(css)}
 const video=$('video');
 const layerPanel=[...document.querySelectorAll('.right-stack .panel')].find(p=>/Temporal layers/i.test(p.querySelector('.panel-title')?.textContent||''));
 const layerBody=layerPanel?.querySelector('.panel-body');
