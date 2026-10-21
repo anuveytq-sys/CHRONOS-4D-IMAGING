@@ -1,101 +1,52 @@
-/* CHRONOS Multi 4D Timeline — optional OpenRouter-powered location search and temporal composite.
-   Additive only: leaves source video and existing timeline engines intact.
-   Results are AI-assisted reconstructions, not evidence of synchronized events. */
+/* CHRONOS Multi 4D Timeline — optional OpenRouter-powered place image search and temporal comparison.
+   Additive UI only. Existing playback, temporal layer controls, and other panels remain intact.
+   Output is an AI-assisted visual comparison, not a verified physical 4D reconstruction. */
 (()=>{'use strict';
 const $=id=>document.getElementById(id);
+if(window.__chronosMulti4dInstalled)return;
+window.__chronosMulti4dInstalled=true;
 if(!document.querySelector('link[data-chronos-multi4d-css]')){const css=document.createElement('link');css.rel='stylesheet';css.href='chronos-multi4d.css';css.dataset.chronosMulti4dCss='true';document.head.append(css)}
 const video=$('video');
 const layerPanel=[...document.querySelectorAll('.right-stack .panel')].find(p=>/Temporal layers/i.test(p.querySelector('.panel-title')?.textContent||''));
 const layerBody=layerPanel?.querySelector('.panel-body');
-if(!video||!layerPanel||!layerBody||$('multi4dPanel'))return;
+if(!video||!layerPanel||!layerBody)return;
 layerPanel.classList.add('chronos-temporal-layers-panel');
 const key=()=>localStorage.getItem('chronos-openrouter-key')||$('apiKey')?.value.trim()||'';
 const toast=message=>{const el=$('toast');if(el){el.textContent=message;el.classList.add('show');clearTimeout(toast.timer);toast.timer=setTimeout(()=>el.classList.remove('show'),3200)}};
-const panel=document.createElement('section');
-panel.id='multi4dPanel';panel.className='multi4d-panel';
+const panel=document.createElement('section');panel.id='multi4dPanel';panel.className='multi4d-panel';
 panel.innerHTML=`
-<div class="multi4d-heading"><span>◈ MULTI 4D TIMELINE</span><span class="multi4d-badge">OPTIONAL AI</span></div>
-<p class="multi4d-note">Search for the same place shown in the source video, compare images from different dates, and build an animated temporal composite.</p>
-<label class="multi4d-label" for="multi4dContext">Place or search hint (optional)</label>
-<input id="multi4dContext" class="multi4d-input" type="text" placeholder="e.g. exact landmark, city, event">
-<div class="multi4d-actions"><button type="button" class="btn primary" id="multi4dRun">Multi 4D Timeline</button><button type="button" class="btn" id="multi4dClear">Clear result</button></div>
-<div class="multi4d-status" id="multi4dStatus" role="status" aria-live="polite">Ready · Load or pause a video, then start when you choose.</div>
-<div id="multi4dResult" class="multi4d-result" hidden>
-<div class="multi4d-place" id="multi4dPlace"></div>
-<div class="multi4d-stage" id="multi4dStage" aria-label="AI-assisted temporal image reconstruction"></div>
-<div class="multi4d-legend">SOURCE FRAME + WEB IMAGE REFERENCES · RECONSTRUCTED COMPOSITE</div>
-<div class="multi4d-sources" id="multi4dSources"></div>
-<p class="multi4d-disclaimer">This is an AI-assisted visual reconstruction. Dates, location matches, and people/crowd comparisons can be uncertain; it does not prove simultaneous events or recreate a verified historical moment. Use only images you have permission to use.</p>
-</div>`;
-panel.style.order='999';
-panel.style.maxWidth='100%';
-layerBody.appendChild(panel);
+<div class="multi4d-heading"><span>◈ MULTI 4D TIMELINE</span><span class="multi4d-head-actions"><span class="multi4d-badge">OPTIONAL AI</span><button type="button" id="multi4dClose" class="multi4d-close" aria-label="Hide Temporal Layers panel" title="Hide panel">×</button></span></div>
+<p class="multi4d-note">Choose a photo, import an image URL, or search the web. AI will identify the place and find dated references for a temporal comparison.</p>
+<div class="multi4d-source-actions"><button type="button" class="btn" id="multi4dChoosePhoto">📷 Take / choose photo</button><input id="multi4dPhotoFile" type="file" accept="image/*" capture="environment" hidden><div class="multi4d-url-row"><input id="multi4dImageUrl" class="multi4d-input" type="url" placeholder="Paste direct image URL"><button type="button" class="btn" id="multi4dImportUrl">Import</button></div></div>
+<div id="multi4dPreviewWrap" class="multi4d-preview-wrap" hidden><img id="multi4dPreview" alt="Selected place image"><div><span id="multi4dSourceLabel">Selected image</span><button type="button" class="btn" id="multi4dRemoveSource">Remove</button></div></div>
+<label class="multi4d-label" for="multi4dContext">Place / situation / year (optional hint)</label><input id="multi4dContext" class="multi4d-input" type="text" placeholder="e.g. Taj Mahal, 1980s, before renovation">
+<div class="multi4d-label">Find an image on the web</div><div class="multi4d-url-row"><input id="multi4dSearchQuery" class="multi4d-input" type="search" placeholder="Search a place or situation"><button type="button" class="btn" id="multi4dSearch">Search</button></div>
+<div id="multi4dWebResults" class="multi4d-web-results" hidden></div>
+<div class="multi4d-actions"><button type="button" class="btn primary" id="multi4dRun">Build temporal comparison</button><button type="button" class="btn" id="multi4dClear">Clear result</button></div>
+<div class="multi4d-status" id="multi4dStatus" role="status" aria-live="polite">Ready · Choose a place photo or import one from web, then run the optional AI analysis.</div>
+<div id="multi4dResult" class="multi4d-result" hidden><div class="multi4d-place" id="multi4dPlace"></div><div class="multi4d-stage" id="multi4dStage" aria-label="AI-assisted temporal image comparison"></div><div class="multi4d-legend">SELECTED SOURCE + DATED WEB REFERENCES · ANIMATED TEMPORAL COMPARISON</div><div class="multi4d-sources" id="multi4dSources"></div><p class="multi4d-disclaimer">AI-assisted comparison only. Dates and place matches may be uncertain; this is not a verified 4D scan or proof of historical conditions. Use images you have permission to use.</p></div>`;
+panel.style.order='999';panel.style.maxWidth='100%';layerBody.appendChild(panel);
+const openBtn=document.createElement('button');openBtn.id='chronosTemporalLayersToggle';openBtn.type='button';openBtn.className='chronos-temporal-toggle';openBtn.textContent='◈ Temporal Layers';openBtn.setAttribute('aria-controls','multi4dPanel');openBtn.setAttribute('aria-expanded','true');document.body.appendChild(openBtn);
+function setOpen(open){layerPanel.classList.toggle('chronos-temporal-hidden',!open);openBtn.hidden=!!open;openBtn.setAttribute('aria-expanded',String(!!open));if(open&&matchMedia('(max-width:760px)').matches)layerPanel.classList.add('chronos-temporal-mobile-open');else layerPanel.classList.remove('chronos-temporal-mobile-open')}
+$('multi4dClose').addEventListener('click',()=>setOpen(false));openBtn.addEventListener('click',()=>setOpen(true));
 const status=m=>{const el=$('multi4dStatus');if(el)el.textContent=m};
-const dataURL=()=>{
- try{if(!video.videoWidth||!video.videoHeight)throw Error('Load a video and wait for a frame to appear first.');const c=document.createElement('canvas');c.width=Math.min(video.videoWidth,1024);c.height=Math.round(c.width*video.videoHeight/video.videoWidth);c.getContext('2d').drawImage(video,0,0,c.width,c.height);return c.toDataURL('image/jpeg',.78)}
- catch(e){throw Error(e.message||'Could not read the current video frame.')}
-};
+let selectedSource=null;
+function showSource(src,label){selectedSource=src;$('multi4dPreview').src=src;$('multi4dPreviewWrap').hidden=false;$('multi4dSourceLabel').textContent=label||'Selected source image';status('Source selected. Add a hint if useful, then build the temporal comparison.')}
+function clearSource(){$('multi4dPreview').removeAttribute('src');$('multi4dPreviewWrap').hidden=true;selectedSource=null}
+$('multi4dChoosePhoto').addEventListener('click',()=>$('multi4dPhotoFile').click());
+$('multi4dPhotoFile').addEventListener('change',async e=>{const file=e.target.files?.[0];if(!file)return;if(!file.type.startsWith('image/')){status('Choose an image file.');return}if(file.size>15*1024*1024){status('Please choose an image smaller than 15 MB.');return}const data=await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.onerror=reject;reader.readAsDataURL(file)});showSource(data,file.name);e.target.value=''});
+$('multi4dImportUrl').addEventListener('click',()=>{const url=$('multi4dImageUrl').value.trim();if(!/^https?:\/\//i.test(url)){status('Paste a complete https:// or http:// direct image URL.');return}showSource(url,'Imported web image');$('multi4dSearchQuery').value=$('multi4dContext').value.trim()||$('multi4dSearchQuery').value});
+$('multi4dRemoveSource').addEventListener('click',clearSource);
+function parseJSON(raw){try{return JSON.parse(raw.replace(/^\`\`\`(?:json)?/i,'').replace(/\`\`\`$/,'').trim())}catch(_){const a=raw.indexOf('{'),b=raw.lastIndexOf('}');if(a>=0&&b>a){try{return JSON.parse(raw.slice(a,b+1))}catch(__){}}return null}}
 const responseText=data=>data?.choices?.[0]?.message?.content||'';
-function extractUrls(text){
- const urls=[...(text.matchAll(/https?:\/\/\S+/g))].map(m=>m[0].replace(/[.,;]+$/,''));
- return [...new Set(urls)].filter(u=>/^https?:/.test(u)).slice(0,12);
-}
-async function openRouterJSON(path,body,apiKey){
- const r=await fetch('https://openrouter.ai/api/v1/'+path,{method:'POST',headers:{Authorization:'Bearer '+apiKey,'Content-Type':'application/json','HTTP-Referer':location.href,'X-Title':'CHRONOS Multi 4D Timeline'},body:JSON.stringify(body)});
- const text=await r.text();let j;try{j=JSON.parse(text)}catch(_){throw Error('OpenRouter returned an unreadable response ('+r.status+').')}
- if(!r.ok)throw Error(j.error?.message||j.message||('OpenRouter request failed ('+r.status+').'));
- return j;
-}
-async function run(){
- const button=$('multi4dRun');button.disabled=true;
- try{
-  const apiKey=key();if(!apiKey)throw Error('Add an OpenRouter API key in Settings, then choose Test Key and Save Key Locally.');
-  const frame=dataURL();const hint=$('multi4dContext').value.trim();
-  const model=localStorage.getItem('chronos-vision-model-id')||$('visionModelId')?.value.trim()||'google/gemini-2.5-flash';
-  status('Step 1/4 · Identifying the place in the current video frame…');
-  const vision=await openRouterJSON('chat/completions',{model,plugins:[{id:'web'}],messages:[{role:'user',content:[
-   {type:'text',text:'Identify the most likely real-world location/landmark in this image. Then use web search to find the same place in photographs from different dates or periods. Return concise JSON only: {"place":"best match","confidence":"high/medium/low","reason":"visual evidence","images":[{"url":"direct image URL if found","page":"source page URL","date":"date or unknown","caption":"what it depicts"}],"searches":["queries used"]}. Include only actual URLs you found; do not invent URLs. Prefer reputable sources, and if uncertain say so. User hint: '+(hint||'none')+'. Distinguish known facts from guesses.'},
-   {type:'image_url',image_url:{url:frame}}
-  ]}]},apiKey);
-  let raw=responseText(vision);let parsed=null;
-  try{parsed=JSON.parse(raw.replace(/^```(?:json)?/i,'').replace(/```$/,'').trim())}catch(_){}
-  if(!parsed||typeof parsed!=='object'){
-    const start=raw.indexOf('{'),end=raw.lastIndexOf('}');if(start>=0&&end>start){try{parsed=JSON.parse(raw.slice(start,end+1))}catch(_){}}
-  }
-  const place=parsed?.place||hint||'Possible location match';
-  status('Step 2/4 · Checking image references and source pages…');
-  let imgs=Array.isArray(parsed?.images)?parsed.images:[];
-  imgs=imgs.filter(x=>x&&typeof x.url==='string'&&/^https?:\/\//i.test(x.url)).slice(0,8);
-  if(!imgs.length){
-   const searchText=raw+'\n'+JSON.stringify(parsed?.searches||[]);
-   imgs=extractUrls(searchText).filter(u=>/\.(jpe?g|png|webp)(\?|$)/i.test(u)).map(url=>({url,page:url,date:'unknown',caption:'Web image candidate'}));
-  }
-  const result=$('multi4dResult'),stage=$('multi4dStage'),sources=$('multi4dSources');
-  result.hidden=false;$('multi4dPlace').textContent='PLACE MATCH: '+place+' · CONFIDENCE: '+(parsed?.confidence||'unverified');
-  stage.replaceChildren();sources.replaceChildren();
-  const original=document.createElement('div');original.className='multi4d-frame multi4d-original';
-  const srcImg=document.createElement('img');srcImg.src=frame;srcImg.alt='Current frame from your selected video';original.append(srcImg);
-  const cap=document.createElement('span');cap.textContent='SOURCE VIDEO · '+(Number(video.currentTime||0).toFixed(2))+'s';original.append(cap);stage.append(original);
-  let loaded=0;
-  for(const item of imgs){
-   const card=document.createElement('a');card.className='multi4d-source';card.href=item.page||item.url;card.target='_blank';card.rel='noopener noreferrer';
-   const img=document.createElement('img');img.src=item.url;img.alt=item.caption||'Candidate reference image';img.loading='lazy';
-   img.onerror=()=>{card.classList.add('multi4d-unavailable');img.remove();const msg=document.createElement('span');msg.textContent='Image unavailable here';card.prepend(msg)};
-   img.onload=()=>{loaded++;const ref=document.createElement('div');ref.className='multi4d-frame multi4d-reference';const copy=img.cloneNode();copy.alt=item.caption||'Reference image';ref.append(copy);const label=document.createElement('span');label.textContent=(item.date||'DATE UNKNOWN')+' · '+(item.caption||'WEB REFERENCE');ref.append(label);stage.append(ref)};
-   card.append(img);const label=document.createElement('span');label.textContent=(item.date||'Date unknown')+' — '+(item.caption||'Open source page');card.append(label);sources.append(card);
-  }
-  if(!imgs.length){
-   const empty=document.createElement('p');empty.className='multi4d-note';empty.textContent='The model identified a possible place, but did not return direct image URLs that this browser can display. Try adding a more specific place hint or use a different vision model.';stage.append(empty);
-  }
-  status('Step 3/4 · Building a layered temporal comparison…');
-  stage.classList.add('multi4d-animate');
-  const sourceList=Array.isArray(parsed?.searches)?parsed.searches:[];
-  if(sourceList.length){const q=document.createElement('p');q.className='multi4d-note';q.textContent='Searches: '+sourceList.join(' · ');sources.append(q)}
-  status('Step 4/4 · Ready. '+imgs.length+' web image reference(s) found. '+(parsed?.reason||'Location match is model-estimated.')+' This composite is an animated comparison, not verified 4D capture.');
-  result.scrollIntoView({behavior:'smooth',block:'nearest'});
- }catch(e){status('Multi 4D Timeline could not finish: '+(e?.message||String(e)));toast('Multi 4D Timeline needs attention. See its status message.')}
- finally{button.disabled=false}
-}
+async function openRouterJSON(body,apiKey){const r=await fetch('https://openrouter.ai/api/v1/chat/completions',{method:'POST',headers:{Authorization:'Bearer '+apiKey,'Content-Type':'application/json','HTTP-Referer':location.href,'X-Title':'CHRONOS Multi 4D Timeline'},body:JSON.stringify(body)});const text=await r.text();let j;try{j=JSON.parse(text)}catch(_){throw Error('OpenRouter returned an unreadable response ('+r.status+').')}if(!r.ok)throw Error(j.error?.message||j.message||('OpenRouter request failed ('+r.status+').'));return j}
+function modelId(){return localStorage.getItem('chronos-vision-model-id')||$('visionModelId')?.value.trim()||'google/gemini-2.5-flash'}
+function showWebResults(items){const box=$('multi4dWebResults');box.replaceChildren();const valid=items.filter(x=>x&&typeof x.url==='string'&&/^https?:\/\//i.test(x.url)).slice(0,8);if(!valid.length){box.hidden=false;box.textContent='No direct image links were returned. Try a more specific search or import a direct image URL.';return}box.hidden=false;const title=document.createElement('div');title.className='multi4d-label';title.textContent='Web image results — tap one to use it as the source';box.append(title);for(const item of valid){const b=document.createElement('button');b.type='button';b.className='multi4d-web-result';const img=document.createElement('img');img.src=item.url;img.alt='';img.loading='lazy';img.onerror=()=>img.classList.add('multi4d-img-error');const copy=document.createElement('span');copy.textContent=(item.date||'Date unknown')+' · '+(item.caption||item.title||'Web image');b.append(img,copy);b.addEventListener('click',()=>{showSource(item.url,item.caption||item.title||'Selected web image');if(item.page)$('multi4dImageUrl').value=item.url;});box.append(b)}}
+$('multi4dSearch').addEventListener('click',async()=>{const apiKey=key();if(!apiKey){status('Add your OpenRouter API key in Settings first.');return}const query=$('multi4dSearchQuery').value.trim()||$('multi4dContext').value.trim();if(!query){status('Enter a place or situation to search for.');return}const b=$('multi4dSearch');b.disabled=true;status('Searching the web for matching place images…');try{const res=await openRouterJSON({model:modelId(),plugins:[{id:'web'}],messages:[{role:'user',content:'Search the web for images of this place/situation: '+query+'. Return JSON only with {"images":[{"url":"direct image URL","page":"source page URL","date":"date or unknown","caption":"short description"}]}. Return only real direct image URLs that you actually found; do not invent URLs. Prefer trustworthy archives, official sources, and dated images.'}]},apiKey);const parsed=parseJSON(responseText(res));showWebResults(Array.isArray(parsed?.images)?parsed.images:[]);status('Web search finished. Tap an image to import it as the source, or keep your selected photo and build the temporal comparison.')}catch(e){status('Web image search failed: '+(e.message||String(e)))}finally{b.disabled=false}});
+function videoFrame(){if(!video.videoWidth||!video.videoHeight)return null;const c=document.createElement('canvas');c.width=Math.min(video.videoWidth,1024);c.height=Math.round(c.width*video.videoHeight/video.videoWidth);c.getContext('2d').drawImage(video,0,0,c.width,c.height);return c.toDataURL('image/jpeg',.78)}
+function renderComparison(source,sourceLabel,place,parsed){const result=$('multi4dResult'),stage=$('multi4dStage'),sources=$('multi4dSources');result.hidden=false;$('multi4dPlace').textContent='PLACE MATCH: '+place+' · CONFIDENCE: '+(parsed?.confidence||'unverified');stage.replaceChildren();sources.replaceChildren();stage.classList.add('multi4d-animate');const original=document.createElement('div');original.className='multi4d-frame multi4d-original';const img=document.createElement('img');img.src=source;img.alt=sourceLabel;original.append(img);const cap=document.createElement('span');cap.textContent='SELECTED SOURCE · '+sourceLabel;original.append(cap);stage.append(original);const imgs=(Array.isArray(parsed?.images)?parsed.images:[]).filter(x=>x&&typeof x.url==='string'&&/^https?:\/\//i.test(x.url)).slice(0,8);for(const item of imgs){const card=document.createElement('a');card.className='multi4d-source';card.href=item.page||item.url;card.target='_blank';card.rel='noopener noreferrer';const ref=document.createElement('div');ref.className='multi4d-frame multi4d-reference';const im=document.createElement('img');im.src=item.url;im.alt=item.caption||'Web reference';im.loading='lazy';im.onerror=()=>{im.alt='Reference image unavailable';im.style.display='none'};ref.append(im);const label=document.createElement('span');label.textContent=(item.date||'DATE UNKNOWN')+' · '+(item.caption||'WEB REFERENCE');ref.append(label);stage.append(ref);const small=document.createElement('img');small.src=item.url;small.alt='';small.loading='lazy';small.onerror=()=>small.style.display='none';const txt=document.createElement('span');txt.textContent=(item.date||'Date unknown')+' — '+(item.caption||'Open source page');card.append(small,txt);sources.append(card)}if(!imgs.length){const empty=document.createElement('p');empty.className='multi4d-note';empty.textContent='The model did not return direct displayable reference-image URLs. Try Web Search or import another image.';stage.append(empty)}if(Array.isArray(parsed?.searches)&&parsed.searches.length){const q=document.createElement('p');q.className='multi4d-note';q.textContent='Searches: '+parsed.searches.join(' · ');sources.append(q)}status('Ready · '+imgs.length+' web reference(s) returned. '+(parsed?.reason||'Location and dates are AI-estimated.')+' This is an animated comparison, not a verified 4D scan.')}
+async function run(){const button=$('multi4dRun');button.disabled=true;try{const apiKey=key();if(!apiKey)throw Error('Add your OpenRouter API key in Settings first.');let source=selectedSource;let label=$('multi4dSourceLabel').textContent||'Selected image';if(!source){source=videoFrame();label='Current video frame';if(!source)throw Error('Choose/take a photo, import an image URL, or load a video and pause on a frame first.')}const hint=$('multi4dContext').value.trim();status('AI is identifying the place and searching for dated references…');const res=await openRouterJSON({model:modelId(),plugins:[{id:'web'}],messages:[{role:'user',content:[{type:'text',text:'Analyze the supplied source image and identify the likely real-world place or situation. Use web search to find matching images from different dates/periods. Return concise JSON only: {"place":"best match","confidence":"high/medium/low","reason":"visual evidence","images":[{"url":"direct image URL","page":"source page URL","date":"date or unknown","caption":"what it depicts"}],"searches":["queries used"]}. Only use real URLs found on the web; do not invent links. Prefer credible, dated sources and clearly mark uncertainty. User hint: '+(hint||'none')+'. Create a useful temporal comparison of the same place/situation; do not claim a verified 4D scan.'},{type:'image_url',image_url:{url:source}}]}]},apiKey);const raw=responseText(res),parsed=parseJSON(raw)||{};const place=parsed.place||hint||'Possible location match';renderComparison(source,label,place,parsed)}catch(e){status('Multi 4D Timeline could not finish: '+(e.message||String(e)));toast('Multi 4D Timeline needs attention. See its status message.')}finally{button.disabled=false}}
 $('multi4dRun').addEventListener('click',run);
-$('multi4dClear').addEventListener('click',()=>{const r=$('multi4dResult');r.hidden=true;$('multi4dStage').replaceChildren();$('multi4dSources').replaceChildren();status('Result cleared. Your source video was not changed.');});
+$('multi4dClear').addEventListener('click',()=>{$('multi4dResult').hidden=true;$('multi4dStage').replaceChildren();$('multi4dSources').replaceChildren();status('Result cleared. Your source image/video was not changed.')});
+setOpen(true);
 })();
