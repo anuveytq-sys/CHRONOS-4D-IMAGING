@@ -236,3 +236,38 @@
   .left-stack>.chronos-phase3-panel .p3-grid{gap:4px}
   .left-stack>.chronos-phase3-panel .p3-grid .btn{font-size:8px!important;padding:5px 3px!important}
 }
+
+
+/* Final layout guard: the navigator and coordinate system must occupy separate,
+   full-width rows in the left stack at every breakpoint. Keep the coordinate
+   system after the navigator in normal document flow; never overlay either panel. */
+.left-stack{
+  grid-auto-flow:row!important;
+  align-content:start!important;
+  row-gap:8px!important;
+}
+.left-stack>.chronos-phase3-panel,
+.left-stack>.timeline-panel{
+  grid-column:1 / -1!important;
+  grid-row:auto!important;
+  position:relative!important;
+  inset:auto!important;
+  transform:none!important;
+  justify-self:stretch!important;
+  align-self:stretch!important;
+  width:100%!important;
+  max-width:100%!important;
+  min-width:0!important;
+  margin-left:0!important;
+  margin-right:0!important;
+  box-sizing:border-box!important;
+}
+.left-stack>.chronos-phase3-panel{
+  margin-top:0!important;
+  margin-bottom:0!important;
+}
+.left-stack>.timeline-panel{
+  margin-top:0!important;
+  margin-bottom:0!important;
+  visibility:visible!important;
+}
