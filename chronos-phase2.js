@@ -318,7 +318,7 @@ function exportSelectedFrame(){
 // Phase 2 upgrades existing Phase 1 controls without removing them.
 $('fusionBtn').onclick=()=>buildFusion();
 $('echoLayer').onchange=e=>{if(e.target.checked){state.effect='echo';document.querySelectorAll('[data-p2-effect]').forEach(b=>b.classList.toggle('active',b.dataset.p2Effect==='echo'));if(!state.frames.length)buildFusion();else render()}else{state.effect='fusion';render()}};
-$('samples').oninput=e=>{state.samples=clamp(Number(e.target.value)||8,2,32);$('samplesValue').textContent=state.samples;if($('p2Samples'))$('p2Samples').value=state.samples};
+$('samples').oninput=e=>{state.samples=clamp(Number(e.target.value)||8,2,60);$('samplesValue').textContent=state.samples;if($('p2Samples'))$('p2Samples').value=state.samples};
 $('intensity').oninput=e=>{$('intensityValue').textContent=e.target.value+'%';document.querySelector('.reticle').style.opacity=String(Number(e.target.value)/100);document.querySelector('.scanline').style.opacity=String(Number(e.target.value)/285);state.emphasis=Number(e.target.value);if($('p2Emphasis'))$('p2Emphasis').value=state.emphasis;render()};
 
 video.addEventListener('loadedmetadata',()=>{
