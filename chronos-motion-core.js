@@ -10,7 +10,7 @@ const state={frames:[],background:null,effect:'fusion',busy:false,token:0,shifts
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const toast=m=>{const e=$('toast');if(!e)return;e.textContent=m;e.classList.add('show');clearTimeout(window.__chronosMotionToast);window.__chronosMotionToast=setTimeout(()=>e.classList.remove('show'),2800)};
 const dur=()=>Number.isFinite(video.duration)?video.duration:0;
-const fmt=t=>{t=Math.max(0,Number(t)||0);return String(Math.floor(t/60)).padStart(2,'0')+':'+String(Math.floor(t%60)).padStart(3,'0')+'.'+String(Math.floor((t%1)*1000)).padStart(3,'0')};
+const fmt=t=>{t=Math.max(0,Number(t)||0);return String(Math.floor(t/60)).padStart(2,'0')+':'+String(Math.floor(t%60)).padStart(2,'0')+'.'+String(Math.floor((t%1)*1000)).padStart(3,'0')};
 function canvasSize(c){const r=screen.getBoundingClientRect(),d=devicePixelRatio||1,w=Math.max(1,Math.floor(r.width*d)),h=Math.max(1,Math.floor(r.height*d));if(c.width!==w||c.height!==h){c.width=w;c.height=h}return{w,h}}
 function drawCover(ctx,s,w,h){const sw=s.videoWidth||s.width||w,sh=s.videoHeight||s.height||h;if(!sw||!sh)return;const k=Math.min(w/sw,h/sh),dw=sw*k,dh=sh*k;ctx.drawImage(s,(w-dw)/2,(h-dh)/2,dw,dh)}
 function ensure(){let c=$('chronosMotionCanvas');if(!c){c=document.createElement('canvas');c.id='chronosMotionCanvas';Object.assign(c.style,{position:'absolute',inset:'0',width:'100%',height:'100%',pointerEvents:'none',zIndex:'4'});if(getComputedStyle(screen).position==='static')screen.style.position='relative';screen.insertBefore(c,screen.querySelector('.reticle')||null)}const old=$('chronosTemporalCanvas');if(old)old.style.display='none';return c}
@@ -26,14 +26,26 @@ function makeMotionLayer(image,bg){
  const sw=image.width||video.videoWidth||640,sh=image.height||video.videoHeight||360,mw=bg.width,mh=bg.height;
  const small=document.createElement('canvas');small.width=mw;small.height=mh;const sx=small.getContext('2d',{willReadFrequently:true});sx.drawImage(image,0,0,mw,mh);
  const a=sx.getImageData(0,0,mw,mh),b=bg.getContext('2d',{willReadFrequently:true}).getImageData(0,0,mw,mh),raw=new Uint8Array(mw*mh);
- // The captured frame is never colour-corrected, filtered, warped, or blended with
- // another frame. We build only a coverage mask. A solid core plus a small dilation
- // prevents faces, hands and thin body parts from being punched full of holes by
- // tiny background-colour differences.
+ // The captured RGB image is sacred: this function only creates coverage. A person
+ // must not acquire holes in the face, hands or body because of small colour changes.
  for(let y=0;y<mh;y++)for(let x=0;x<mw;x++){const p=(y*mw+x)*4;const d=(Math.abs(a.data[p]-b.data[p])+Math.abs(a.data[p+1]-b.data[p+1])+Math.abs(a.data[p+2]-b.data[p+2]))/3;raw[y*mw+x]=d>30?255:0}
- const expanded=new Uint8Array(raw.length);
- for(let y=0;y<mh;y++)for(let x=0;x<mw;x++){let hit=0;for(let yy=Math.max(0,y-2);yy<=Math.min(mh-1,y+2)&&!hit;yy++)for(let xx=Math.max(0,x-2);xx<=Math.min(mw-1,x+2);xx++){if(raw[yy*mw+xx]){hit=1;break}}expanded[y*mw+x]=hit?255:0}
- const m=sx.createImageData(mw,mh);for(let i=0,p=0;i<expanded.length;i++,p+=4)m.data[p]=m.data[p+1]=m.data[p+2]=255,m.data[p+3]=expanded[i];
+ // Morphological close: bridge tiny gaps and remove isolated pinholes before the
+ // layer is applied. This changes alpha coverage only, never the captured colours.
+ const dilated=new Uint8Array(raw.length);
+ for(let y=0;y<mh;y++)for(let x=0;x<mw;x++){let hit=0;for(let yy=Math.max(0,y-3);yy<=Math.min(mh-1,y+3)&&!hit;yy++)for(let xx=Math.max(0,x-3);xx<=Math.min(mw-1,x+3);xx++)if(raw[yy*mw+xx]){hit=1;break}dilated[y*mw+x]=hit?255:0}
+ const closed=new Uint8Array(raw.length);
+ for(let y=0;y<mh;y++)for(let x=0;x<mw;x++){let keep=1;for(let yy=Math.max(0,y-2);yy<=Math.min(mh-1,y+2)&&keep;yy++)for(let xx=Math.max(0,x-2);xx<=Math.min(mw-1,x+2);xx++)if(!dilated[yy*mw+xx]){keep=0;break}closed[y*mw+x]=keep?255:0}
+ // Fill only enclosed holes in the foreground mask. Areas connected to the outside
+ // remain background, so this does not simply paint the entire scene as foreground.
+ const outside=new Uint8Array(closed.length),q=[];
+ const push=(x,y)=>{if(x<0||y<0||x>=mw||y>=mh)return;const i=y*mw+x;if(closed[i]||outside[i])return;outside[i]=1;q.push(i)};
+ for(let x=0;x<mw;x++){push(x,0);push(x,mh-1)}
+ for(let y=1;y<mh-1;y++){push(0,y);push(mw-1,y)}
+ for(let h=0;h<q.length;h++){const i=q[h],x=i%mw,y=(i/mw)|0;push(x-1,y);push(x+1,y);push(x,y-1);push(x,y+1)}
+ const finalMask=new Uint8Array(closed.length);for(let i=0;i<finalMask.length;i++)finalMask[i]=outside[i]?0:255;
+ // Preserve a little of the original mask for legitimate open background areas.
+ for(let i=0;i<finalMask.length;i++)if(closed[i]===0&&raw[i]===0&&outside[i])finalMask[i]=0;
+ const m=sx.createImageData(mw,mh);for(let i=0,p=0;i<finalMask.length;i++,p+=4)m.data[p]=m.data[p+1]=m.data[p+2]=255,m.data[p+3]=finalMask[i];
  const mask=document.createElement('canvas');mask.width=mw;mask.height=mh;mask.getContext('2d').putImageData(m,0,0);
  const full=document.createElement('canvas');full.width=sw;full.height=sh;const fx=full.getContext('2d');fx.imageSmoothingEnabled=true;fx.drawImage(image,0,0,sw,sh);fx.globalCompositeOperation='destination-in';fx.drawImage(mask,0,0,sw,sh);fx.globalCompositeOperation='source-over';return{image:full,mask}}
 async function build(){if(state.busy||!video.src||!dur())return toast(state.busy?'Temporal tracking is already running.':'Load or record a video first.');state.busy=true;const token=++state.token,saved=video.currentTime,playing=!video.paused;video.pause();try{const times=sampleTimes(),images=[];for(let i=0;i<times.length;i++){await seek(times[i]);images.push(await grab());const s=$('p2Status');if(s)s.textContent=`Tracking moving regions ${i+1}/${times.length} · ${fmt(times[i])}`;if(token!==state.token)throw new Error('cancelled')}const reference=images[Math.floor(images.length/2)];const aligned=[],shifts=[];for(let i=0;i<images.length;i++){if(i===Math.floor(images.length/2)){aligned.push(images[i]);shifts.push({dx:0,dy:0,confidence:1});continue}const shift=estimateShift(reference,images[i]);shifts.push(shift);const safe=shift.confidence>=.035&&Math.abs(shift.dx)<=26&&Math.abs(shift.dy)<=17?shift:{dx:0,dy:0,confidence:0,rejected:true};aligned.push(safe.rejected?alignImage(images[i],reference,{dx:0,dy:0}):alignImage(images[i],reference,safe))}state.shifts=shifts;state.background=await makeBackground(aligned);state.frames=aligned.map((image,i)=>({time:times[i],image,...makeMotionLayer(image,state.background),visible:true,score:0,alignment:shifts[i]}));state.frames.forEach(f=>{const d=f.mask.getContext('2d',{willReadFrequently:true}).getImageData(0,0,f.mask.width,f.mask.height).data;let sum=0;for(let i=3;i<d.length;i+=4)sum+=d[i];f.score=sum/(255*(d.length/4))});render();const s=$('p2Status');if(s)s.textContent=`${state.frames.length} temporal samples tracked · stable background locked · moving regions only`;const chip=$('temporalChip');if(chip)chip.textContent='TEMPORAL LAYERS: '+state.frames.length;const note=$('layerNote');if(note)note.textContent='Motion-aware temporal layers: stationary background stays stable; moving regions carry the 4D effect.';toast('4D motion trail built: stationary background preserved, moving objects tracked.')}catch(e){if(e.message!=='cancelled'){const s=$('p2Status');if(s)s.textContent='Motion tracking failed: '+(e.message||'unknown error');toast('Could not build the motion-aware 4D trail.')}}finally{await seek(saved);if(playing)video.play().catch(()=>{});state.busy=false}}
