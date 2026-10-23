@@ -264,28 +264,31 @@ function render(){
    const distance=Math.abs(f.time-video.currentTime);
    const recency=1/(1+distance*1.8);
    const direction=f.time<video.currentTime?-1:1;
-   const offset=Math.min(w*.035,distance*w*.018)*direction;
-   ctx.save();ctx.globalCompositeOperation='screen';ctx.globalAlpha=clamp(opacity*(.14+.48*recency)*(state.layerOpacity[state.frames.indexOf(f)]??1),0,.72);
-   const sw=f.image.videoWidth||f.image.width||w,sh=f.image.videoHeight||f.image.height||h;const scale=Math.min(w/sw,h/sh),dw=sw*scale,dh=sh*scale;
-   ctx.drawImage(f.image,(w-dw)/2+offset,(h-dh)/2,dw,dh);ctx.restore();
+   // Smaller, eased offsets reduce the visual jitter between temporal samples.
+   const offset=Math.min(w*.022,distance*w*.012)*direction;
+   const layer=state.layerOpacity[state.frames.indexOf(f)]??1;
+   ctx.save();ctx.globalCompositeOperation='source-over';
+   ctx.globalAlpha=clamp(opacity*(.24+.52*recency)*layer,.18,.76);
+   drawCover(ctx,f.image,w,h);ctx.restore();
   });
  }else if(state.effect==='ghost'){
   sorted.forEach(f=>{
+   if(f===current)return;
    const distance=Math.abs(f.time-video.currentTime),layer=state.layerOpacity[state.frames.indexOf(f)]??1;
-   ctx.save();ctx.filter='grayscale(1) contrast(1.12)';ctx.globalCompositeOperation='screen';
-   ctx.globalAlpha=clamp(opacity*(f===current?.62:.2/(1+distance))*layer,0,.7);
-   drawCover(ctx,f.image,w,h);ctx.restore();
+   // More legible historical silhouettes while keeping them below the live subject.
+   const strength=clamp(opacity*(.34/(1+distance*.65))*layer,.22,.64);
+   ctx.save();ctx.filter='grayscale(1) contrast(1.08)';ctx.globalCompositeOperation='source-over';
+   ctx.globalAlpha=strength;drawCover(ctx,f.image,w,h);ctx.restore();
   });
-  // Keep the live subject fully opaque; only historical ghost frames should fade.
   if(current){ctx.save();ctx.globalAlpha=1;drawFrame(ctx,current.image,w,h,1);ctx.strokeStyle='rgba(98,244,237,.75)';ctx.lineWidth=Math.max(1,devicePixelRatio);ctx.setLineDash([4*devicePixelRatio,4*devicePixelRatio]);ctx.strokeRect(w*.06,h*.06,w*.88,h*.88);ctx.restore()}
  }else if(state.effect==='trail'){
-  sorted.filter(f=>f.time<=video.currentTime+0.001).forEach(f=>{
+  sorted.filter(f=>f!==current&&f.time<=video.currentTime+0.001).forEach(f=>{
    const age=Math.max(0,video.currentTime-f.time),layer=state.layerOpacity[state.frames.indexOf(f)]??1;
-   ctx.save();ctx.globalCompositeOperation='lighter';ctx.globalAlpha=clamp(opacity*(.08+.34/(1+age*1.7))*layer,0,.42);
-   ctx.filter='saturate(1.25) contrast(1.08)';drawCover(ctx,f.image,w,h);ctx.restore();
+   // Stable source-over blending avoids additive blowout and transparent-looking cut-outs.
+   const strength=clamp(opacity*(.42/(1+age*.72))*layer,.24,.62);
+   ctx.save();ctx.globalCompositeOperation='source-over';ctx.globalAlpha=strength;
+   ctx.filter='saturate(1.12) contrast(1.04)';drawCover(ctx,f.image,w,h);ctx.restore();
   });
-  // Draw the current frame fully opaque above the translucent trail samples.
-  // This prevents the moving subject itself from looking cut-out or washed out.
   if(current)drawFrame(ctx,current.image,w,h,1);
  }
 }
