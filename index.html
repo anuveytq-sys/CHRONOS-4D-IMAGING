@@ -100,6 +100,15 @@
  <link rel="stylesheet" href="./chronos-phase2.css?v=20261021-temporalvision-compact1">
  <link rel="stylesheet" href="./chronos-phase3.css?v=20261021-nav-readable3">
  <link rel="stylesheet" href="./chronos-phase4.css?v=20261021-ai-futurecast1">
+
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" href="./icons/app.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="./icons/app.svg">
+  <meta name="theme-color" content="#05090e">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="CHRONOS">
 </head>
 <body>
 <div class="app">
@@ -189,5 +198,11 @@ const screen=$('screen');screen.addEventListener('dragover',e=>{e.preventDefault
  <script src="./chronos-phase3.js?v=20261021-nav-readable3"></script>
  <script src="./chronos-phase4.js?v=20261021-ai-futurecast1"></script>
  <script src="./chronos-multi4d-free.js?v=20261021-timeecho2"></script>
+
+<script>
+if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
+  window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js', { scope: './' }).catch(err => console.warn('App shell registration unavailable:', err)));
+}
+</script>
 </body>
 </html>
