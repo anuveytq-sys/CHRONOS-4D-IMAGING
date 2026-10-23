@@ -18,8 +18,17 @@ button.addEventListener('click',async()=>{
  try{
   video.pause();
   if(video.currentTime!==0){const seeked=waitForEvent(video,'seeked');video.currentTime=0;await seeked}
-  const vw=video.videoWidth||1280,vh=video.videoHeight||720,scale=Math.min(1,1920/vw,1080/vh);
-  const canvas=document.createElement('canvas');canvas.width=Math.max(2,Math.round(vw*scale));canvas.height=Math.max(2,Math.round(vh*scale));
+  const vw=video.videoWidth||1280,vh=video.videoHeight||720;
+  // Export in the CHRONOS viewport's aspect ratio. The temporal renderer is
+  // sized to #screen (often square), not to the source video's aspect ratio;
+  // stretching that canvas into a 16:9 export creates the horizontal-strip
+  // corruption visible in exported files.
+  const screenRect=screen.getBoundingClientRect();
+  const aspect=(screenRect.width>0&&screenRect.height>0)?screenRect.width/screenRect.height:vw/vh;
+  const maxSide=1080;
+  const outW=Math.max(2,Math.round(aspect>=1?maxSide: maxSide*aspect));
+  const outH=Math.max(2,Math.round(aspect>=1?maxSide/aspect:maxSide));
+  const canvas=document.createElement('canvas');canvas.width=outW;canvas.height=outH;
   const ctx=canvas.getContext('2d',{alpha:false});
   stream=canvas.captureStream(30);
   // Preserve source audio where the browser exposes a media capture stream.
@@ -39,13 +48,20 @@ button.addEventListener('click',async()=>{
    if(!exporting)return;
    try{
     ctx.fillStyle='#020407';ctx.fillRect(0,0,canvas.width,canvas.height);
-    if(video.readyState>=2)ctx.drawImage(video,0,0,canvas.width,canvas.height);
+    // Match the main viewport's video object-fit: contain, then overlay the
+    // temporal canvas at the same viewport aspect ratio without stretching.
+    if(video.readyState>=2){
+      const scale=Math.min(canvas.width/vw,canvas.height/vh);
+      const dw=vw*scale,dh=vh*scale;
+      ctx.drawImage(video,(canvas.width-dw)/2,(canvas.height-dh)/2,dw,dh);
+    }
     const motion=document.getElementById('chronosMotionCanvas');
     const temporal=document.getElementById('chronosTemporalCanvas');
     const layer=motion&&motion.width&&motion.height&&getComputedStyle(motion).display!=='none'
       ?motion:temporal;
-    if(layer&&layer.width&&layer.height&&getComputedStyle(layer).display!=='none')
+    if(layer&&layer.width&&layer.height&&getComputedStyle(layer).display!=='none'){
       ctx.drawImage(layer,0,0,canvas.width,canvas.height);
+    }
    }catch(e){}
    raf=requestAnimationFrame(paint);
   };
