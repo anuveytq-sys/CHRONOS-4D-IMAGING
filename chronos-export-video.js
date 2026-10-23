@@ -31,14 +31,21 @@ button.addEventListener('click',async()=>{
   recorder=new MediaRecorder(stream,{mimeType,videoBitsPerSecond:6000000});
   recorder.ondataavailable=e=>{if(e.data&&e.data.size)recorded.push(e.data)};
   const done=new Promise((resolve,reject)=>{recorder.onstop=resolve;recorder.onerror=()=>reject(new Error('Video recording failed.'))});
-  const overlay=()=>document.getElementById('chronosTemporalCanvas');
+  // The motion-aware Phase 2 renderer uses chronosMotionCanvas; the older
+  // chronosTemporalCanvas is deliberately hidden when that renderer is active.
+  // Composite the visible renderer canvas after the source frame so the export
+  // matches the actual CHRONOS viewport instead of silently recording raw video.
   const paint=()=>{
    if(!exporting)return;
    try{
     ctx.fillStyle='#020407';ctx.fillRect(0,0,canvas.width,canvas.height);
     if(video.readyState>=2)ctx.drawImage(video,0,0,canvas.width,canvas.height);
-    const layer=overlay();
-    if(layer&&layer.width&&layer.height)ctx.drawImage(layer,0,0,canvas.width,canvas.height);
+    const motion=document.getElementById('chronosMotionCanvas');
+    const temporal=document.getElementById('chronosTemporalCanvas');
+    const layer=motion&&motion.width&&motion.height&&getComputedStyle(motion).display!=='none'
+      ?motion:temporal;
+    if(layer&&layer.width&&layer.height&&getComputedStyle(layer).display!=='none')
+      ctx.drawImage(layer,0,0,canvas.width,canvas.height);
    }catch(e){}
    raf=requestAnimationFrame(paint);
   };
