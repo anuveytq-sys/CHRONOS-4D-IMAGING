@@ -195,7 +195,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape')modal.classList.remo
 const screen=$('screen');screen.addEventListener('dragover',e=>{e.preventDefault();screen.style.outline='2px solid var(--cyan)'});screen.addEventListener('dragleave',()=>screen.style.outline='');screen.addEventListener('drop',e=>{e.preventDefault();screen.style.outline='';loadFile(e.dataTransfer.files&&e.dataTransfer.files[0])});const savedTheme=localStorage.getItem('chronos-theme');if(savedTheme==='quiet'){$('themeSelect').value='quiet';document.documentElement.style.setProperty('--cyan','#9cc7c9')}$('modelId').value=localStorage.getItem('chronos-model-id')||'';$('modelSelect').value=localStorage.getItem('chronos-provider')||'openrouter';$('themeSelect').addEventListener('change',e=>{localStorage.setItem('chronos-theme',e.target.value);document.documentElement.style.setProperty('--cyan',e.target.value==='quiet'?'#9cc7c9':'#62f4ed')});$('modelSelect').addEventListener('change',e=>localStorage.setItem('chronos-provider',e.target.value));$('modelId').addEventListener('change',e=>localStorage.setItem('chronos-model-id',e.target.value.trim()));window.addEventListener('beforeunload',()=>{if(objectUrl)URL.revokeObjectURL(objectUrl)});setStatus('STANDBY');updateTime();
 })();
 </script>
- <script src="./chronos-phase2.js"></script>\n <script src="./chronos-export-video.js"></script>
+ <script src="./chronos-phase2.js"></script>\n <script src="./chronos-export-video.js?v=20261023-motioncanvas2"></script>
  <script src="./chronos-phase3.js?v=20261021-nav-readable3"></script>
  <script src="./chronos-phase4.js?v=20261021-ai-futurecast1"></script>
  <script src="./chronos-multi4d-free.js?v=20261021-timeecho2"></script>
