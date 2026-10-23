@@ -1,0 +1,24 @@
+{
+  "id": "./",
+  "name": "CHRONOS",
+  "short_name": "CHRONOS",
+  "description": "Installable CHRONOS web app",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "display_override": [
+    "standalone",
+    "fullscreen"
+  ],
+  "orientation": "any",
+  "background_color": "#05090e",
+  "theme_color": "#05090e",
+  "icons": [
+    {
+      "src": "./icons/app.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
