@@ -276,14 +276,17 @@ function render(){
    ctx.globalAlpha=clamp(opacity*(f===current?.62:.2/(1+distance))*layer,0,.7);
    drawCover(ctx,f.image,w,h);ctx.restore();
   });
-  if(current){ctx.save();ctx.strokeStyle='rgba(98,244,237,.75)';ctx.lineWidth=Math.max(1,devicePixelRatio);ctx.setLineDash([4*devicePixelRatio,4*devicePixelRatio]);ctx.strokeRect(w*.06,h*.06,w*.88,h*.88);ctx.restore()}
+  // Keep the live subject fully opaque; only historical ghost frames should fade.
+  if(current){ctx.save();ctx.globalAlpha=1;drawFrame(ctx,current.image,w,h,1);ctx.strokeStyle='rgba(98,244,237,.75)';ctx.lineWidth=Math.max(1,devicePixelRatio);ctx.setLineDash([4*devicePixelRatio,4*devicePixelRatio]);ctx.strokeRect(w*.06,h*.06,w*.88,h*.88);ctx.restore()}
  }else if(state.effect==='trail'){
   sorted.filter(f=>f.time<=video.currentTime+0.001).forEach(f=>{
    const age=Math.max(0,video.currentTime-f.time),layer=state.layerOpacity[state.frames.indexOf(f)]??1;
    ctx.save();ctx.globalCompositeOperation='lighter';ctx.globalAlpha=clamp(opacity*(.08+.34/(1+age*1.7))*layer,0,.42);
    ctx.filter='saturate(1.25) contrast(1.08)';drawCover(ctx,f.image,w,h);ctx.restore();
   });
-  if(current)drawFrame(ctx,current.image,w,h,clamp(.12+emphasis*.22,0,.38));
+  // Draw the current frame fully opaque above the translucent trail samples.
+  // This prevents the moving subject itself from looking cut-out or washed out.
+  if(current)drawFrame(ctx,current.image,w,h,1);
  }
 }
 function renderCompare(ctx,w,h,opacity){
