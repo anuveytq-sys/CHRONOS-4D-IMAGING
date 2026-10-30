@@ -111,7 +111,7 @@ function bindPanel(){
  $('p2End').onchange=()=>syncRange();
  $('p2Emphasis').oninput=e=>{state.emphasis=Number(e.target.value);$('p2EmphasisValue').textContent=state.emphasis+'%';render()};
  $('p2Opacity').oninput=e=>{$('p2OpacityValue').textContent=e.target.value+'%';render()};
- document.querySelectorAll('[data-p2-effect]').forEach(btn=>btn.onclick=async()=>{state.effect=btn.dataset.p2Effect;document.querySelectorAll('[data-p2-effect]').forEach(b=>b.classList.toggle('active',b===btn));updateEffectDescription();if(state.effect==='freeze'&&video.src)video.pause();if(state.effect!=='compare'&&!state.frames.length){if(!video.src){toast('Load a recording first, then choose an effect.');return}await buildFusion();return}render()});
+ document.querySelectorAll('[data-p2-effect]').forEach(btn=>btn.onclick=async()=>{state.effect=btn.dataset.p2Effect;prepareEffectCache(state.effect);document.querySelectorAll('[data-p2-effect]').forEach(b=>b.classList.toggle('active',b===btn));updateEffectDescription();if(state.effect==='freeze'&&video.src)video.pause();if(state.effect!=='compare'&&!state.frames.length){if(!video.src){toast('Load a recording first, then choose an effect.');return}await buildFusion();return}render()});
 }
 
 function ensureCanvas(){
@@ -119,7 +119,9 @@ function ensureCanvas(){
  if(!canvas){canvas=document.createElement('canvas');canvas.id='chronosTemporalCanvas';screen.insertBefore(canvas,screen.querySelector('.reticle')||null)}
  return canvas;
 }
-function canvasSize(canvas){const r=screen.getBoundingClientRect();const w=Math.max(1,Math.floor(r.width*devicePixelRatio));const h=Math.max(1,Math.floor(r.height*devicePixelRatio));if(canvas.width!==w||canvas.height!==h){canvas.width=w;canvas.height=h}return {w,h}}
+function canvasSize(canvas){const r=screen.getBoundingClientRect();const dpr=Math.min(window.devicePixelRatio||1,1.25);const w=Math.max(1,Math.floor(r.width*dpr));const h=Math.max(1,Math.floor(r.height*dpr));if(canvas.width!==w||canvas.height!==h){canvas.width=w;canvas.height=h}return {w,h}}
+function clearEffectCache(){state.frames.forEach(f=>{if(f.effectImage){f.effectImage.width=0;f.effectImage.height=0;delete f.effectImage}})}
+function prepareEffectCache(effect){clearEffectCache();if(effect!=='ghost'&&effect!=='trail')return;const filter=effect==='ghost'?'grayscale(1) contrast(1.08)':'saturate(1.12) contrast(1.04)';state.frames.forEach(f=>{const image=f.image;if(!image)return;const c=document.createElement('canvas');c.width=image.width||480;c.height=image.height||270;const x=c.getContext('2d');x.filter=filter;x.drawImage(image,0,0,c.width,c.height);f.effectImage=c})}
 function drawCover(ctx,source,w,h){
  const sw=source.videoWidth||source.width||w,sh=source.videoHeight||source.height||h;
  if(!sw||!sh)return;
@@ -137,7 +139,7 @@ function seek(t){
 }
 async function bitmapFromCurrent(){
  // Bound preview-frame memory so 50–60 samples remain viable on mobile Safari.
- const sw=video.videoWidth||640,sh=video.videoHeight||360,scale=Math.min(1,640/sw,360/sh);
+ const sw=video.videoWidth||640,sh=video.videoHeight||360,scale=Math.min(1,480/sw,270/sh);
  const c=document.createElement('canvas');c.width=Math.max(1,Math.round(sw*scale));c.height=Math.max(1,Math.round(sh*scale));
  const x=c.getContext('2d',{willReadFrequently:false});x.drawImage(video,0,0,c.width,c.height);
  if(window.createImageBitmap){try{return await createImageBitmap(c)}catch(e){}}
@@ -183,6 +185,7 @@ async function buildFusion(){
  $('p2Build').disabled=true;
  try{
   state.frames=analyzeEvents(await captureTimes(uniqueTimes));
+  prepareEffectCache(state.effect);
   state.layerOpacity=state.frames.map(()=>1);
   updateLayerUI();
   updateEffectDescription();
@@ -195,7 +198,7 @@ async function buildFusion(){
  $('p2Build').disabled=false;
 }
 
-function clearLayers(){state.renderToken++;state.frames=[];state.layerOpacity=[];updateLayerUI();render();$('temporalChip').textContent='TEMPORAL LAYERS: 0';if($('p2Status'))$('p2Status').textContent='Temporal layers cleared; original recording remains available.';toast('Temporal layers cleared. Source footage is unchanged.')}
+function clearLayers(){state.renderToken++;clearEffectCache();state.frames=[];state.layerOpacity=[];updateLayerUI();render();$('temporalChip').textContent='TEMPORAL LAYERS: 0';if($('p2Status'))$('p2Status').textContent='Temporal layers cleared; original recording remains available.';toast('Temporal layers cleared. Source footage is unchanged.')}
 function updateLayerUI(){
  const root=$('p2Layers');if(!root)return;root.replaceChildren();
  if(!state.frames.length){root.innerHTML='<span class="p2-status">Build a fusion to create temporal layers.</span>';return}
@@ -277,8 +280,8 @@ function render(){
    const distance=Math.abs(f.time-video.currentTime),layer=state.layerOpacity[state.frames.indexOf(f)]??1;
    // More legible historical silhouettes while keeping them below the live subject.
    const strength=clamp(opacity*(.34/(1+distance*.65))*layer,.22,.64);
-   ctx.save();ctx.filter='grayscale(1) contrast(1.08)';ctx.globalCompositeOperation='source-over';
-   ctx.globalAlpha=strength;drawCover(ctx,f.image,w,h);ctx.restore();
+   ctx.save();ctx.globalCompositeOperation='source-over';
+   ctx.globalAlpha=strength;drawCover(ctx,f.effectImage||f.image,w,h);ctx.restore();
   });
   if(current){ctx.save();ctx.globalAlpha=1;drawFrame(ctx,current.image,w,h,1);ctx.strokeStyle='rgba(98,244,237,.75)';ctx.lineWidth=Math.max(1,devicePixelRatio);ctx.setLineDash([4*devicePixelRatio,4*devicePixelRatio]);ctx.strokeRect(w*.06,h*.06,w*.88,h*.88);ctx.restore()}
  }else if(state.effect==='trail'){
@@ -287,7 +290,7 @@ function render(){
    // Stable source-over blending avoids additive blowout and transparent-looking cut-outs.
    const strength=clamp(opacity*(.42/(1+age*.72))*layer,.24,.62);
    ctx.save();ctx.globalCompositeOperation='source-over';ctx.globalAlpha=strength;
-   ctx.filter='saturate(1.12) contrast(1.04)';drawCover(ctx,f.image,w,h);ctx.restore();
+   drawCover(ctx,f.effectImage||f.image,w,h);ctx.restore();
   });
   if(current)drawFrame(ctx,current.image,w,h,1);
  }
